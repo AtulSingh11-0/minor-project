@@ -19,7 +19,7 @@ import Checkout from "./Pages/Checkout";
 import PrescriptionUpload from "./Pages/PrescriptionUpload";
 
 import Orders from "./Pages/Orders";
-
+import AdminHome from "./Pages/Admin/AdminHome";
 
 function App() {
   return (
@@ -36,16 +36,31 @@ function App() {
         )}
 
         <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<Navigate to="/home" />} />
           <Route path="/register" element={<Navigate to="/home" />} />
           <Route path="/login" element={<Navigate to="/home" />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/Medicine-search" element={<MedicineSearch />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/orders" element={<Orders />} />
-          {/* Fixed dynamic route */}
-          <Route path="/upload-prescription/:id" element={<PrescriptionUpload />} />
+
+          {localStorage.getItem("userRole") === "admin" ? (
+            /// Admin Routes  
+            <>
+              <Route path="/" element={<AdminHome />} />
+              <Route path="*" element={<Navigate to={"/"} />} />
+            </>
+          ) : (
+            /// User Routes
+            <>
+              <Route path="/" element={<Navigate to="/home" />} />
+              <Route path="/home" element={<Home />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/Medicine-search" element={<MedicineSearch />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/orders" element={<Orders />} />
+              {/* Fixed dynamic route */}
+              <Route
+                path="/upload-prescription/:id"
+                element={<PrescriptionUpload />}
+              />
+            </>
+          )}
         </Route>
       </Routes>
     </Router>

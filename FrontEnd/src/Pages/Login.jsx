@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../Hooks/AuthCheck";
 import api from "../Apis/Api";
 
-
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,21 +23,25 @@ const Login = () => {
       });
 
       console.log(response);
-      
+      console.log(response.data.data.user.role);
+
+      localStorage.setItem("userRole", response.data.data.user.role);
 
       if (!response.data?.data?.token) {
         throw new Error("No token received from server");
       }
 
       const { token } = response.data.data;
-console.log(token);
+      console.log(token);
 
       // Login and ensure state updates
       login(token);
 
       // Add slight delay before navigation
       setTimeout(() => {
-        navigate("/home");
+        localStorage.getItem("userRole") === "admin"
+          ? navigate("/")
+          : navigate("/home");
       }, 100);
     } catch (err) {
       console.error("Login error:", err);
