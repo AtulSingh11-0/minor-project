@@ -1,7 +1,9 @@
+const mongoose = require("mongoose");
 const Order = require("../models/order.model");
 const Cart = require("../models/cart.model");
 const Product = require("../models/product.model");
 const Payment = require("../models/payment.model"); // Add this import
+const Prescription = require("../models/prescription.model"); // Add this
 const PaymentService = require("../services/payment.service");
 const ApiResponse = require("../utils/responses");
 const { ValidationError, NotFoundError } = require("../utils/errors");
@@ -143,7 +145,9 @@ exports.getOrderById = async (req, res, next) => {
 
     res
       .status(200)
-      .json(ApiResponse.success("Order retrieved successfully", { order }));
+      .json(
+        ApiResponse.success("Order details retrieved successfully", { order })
+      );
   } catch (err) {
     next(err);
   }
@@ -273,22 +277,22 @@ exports.updateOrderStatus = async (req, res, next) => {
 
 exports.getAllOrders = async (req, res, next) => {
   try {
-    const { 
-      page = 1, 
-      limit = 10, 
-      status, 
+    const {
+      page = 1,
+      limit = 10,
+      status,
       prescriptionRequired,
-      sortBy = 'createdAt', 
-      order = 'desc'
+      sortBy = "createdAt",
+      order = "desc",
     } = req.query;
 
     // Build query
     const query = {};
-    if (status && status !== '') {
+    if (status && status !== "") {
       query.orderStatus = status;
     }
-    if (prescriptionRequired && prescriptionRequired !== '') {
-      query.prescriptionRequired = prescriptionRequired === 'true';
+    if (prescriptionRequired && prescriptionRequired !== "") {
+      query.prescriptionRequired = prescriptionRequired === "true";
     }
 
     // Count total documents
@@ -296,8 +300,8 @@ exports.getAllOrders = async (req, res, next) => {
 
     // Get paginated results
     const orders = await Order.find(query)
-      .populate('user', 'name email')
-      .populate('items.product')
+      .populate("user", "name email")
+      .populate("items.product")
       .sort({ [sortBy]: order })
       .skip((parseInt(page) - 1) * parseInt(limit))
       .limit(parseInt(limit));
@@ -309,12 +313,37 @@ exports.getAllOrders = async (req, res, next) => {
           total,
           page: parseInt(page),
           pages: Math.ceil(total / parseInt(limit)),
-          limit: parseInt(limit)
-        }
+          limit: parseInt(limit),
+        },
       })
     );
   } catch (err) {
     console.error("Error in getAllOrders:", err);
+    next(err);
+  }
+};
+
+exports.getAdminOrderDetails = async (req, res, next) => {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate("user", "name email")
+      .populate("items.product");
+
+    const prescription = await Prescription.findOne({ order: order._id });
+
+    if (!order) {
+      return res.status(404).json(ApiResponse.error("Order not found"));
+    }
+
+    res
+      .status(200)
+      .json(
+        ApiResponse.success("Order details retrieved successfully", {
+          order,
+          prescription: prescription || "No prescription uploaded",
+        })
+      );
+  } catch (err) {
     next(err);
   }
 };

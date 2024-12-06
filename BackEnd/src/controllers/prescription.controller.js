@@ -81,6 +81,26 @@ exports.getPendingPrescriptions = async (req, res, next) => {
   }
 };
 
+exports.getPrescriptionByOrderId = async (req, res, next) => {
+  try {
+    const prescription = await Prescription.findOne({
+      order: req.params.orderId,
+    });
+
+    if (!prescription) {
+      return res.status(404).json(ApiResponse.error("Prescription not found"));
+    }
+
+    res.status(200).json(
+      ApiResponse.success("Prescription retrieved successfully", {
+        prescription,
+      })
+    );
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.verifyPrescription = async (req, res, next) => {
   try {
     const { status, notes } = req.body;
@@ -99,7 +119,7 @@ exports.verifyPrescription = async (req, res, next) => {
     // Update order status
     const order = await Order.findById(prescription.order);
     order.prescriptionStatus = status;
-    
+
     // Update order status based on prescription verification
     if (status === "approved") {
       order.orderStatus = "processing"; // Change status to processing when approved
@@ -107,13 +127,13 @@ exports.verifyPrescription = async (req, res, next) => {
       order.orderStatus = "cancelled";
       order.cancellationReason = "Prescription rejected";
     }
-    
+
     await order.save();
 
     res.status(200).json(
       ApiResponse.success("Prescription verified successfully", {
         prescription,
-        order
+        order,
       })
     );
   } catch (err) {
