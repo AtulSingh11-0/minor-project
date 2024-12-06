@@ -27,10 +27,7 @@ const OrderDetails = () => {
 
   const fetchOrderDetails = async () => {
     try {
-      const token = localStorage.getItem("jwt");
-      const response = await api.get(`/orders/${orderId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get(`/orders/admin/${orderId}`);
       setOrder(response.data.data.order);
     } catch (err) {
       toast.error("Failed to fetch order details");
@@ -45,15 +42,15 @@ const OrderDetails = () => {
 
     setUpdating(true);
     try {
-      await api.put(`/orders/${orderId}/status`, { 
-        status: trackingInfo.status 
+      await api.put(`/orders/${orderId}/status`, {
+        status: trackingInfo.status
       });
-      
+
       // Update tracking info if provided
       if (trackingInfo.location || trackingInfo.description) {
         await api.post(`/tracking/${orderId}`, trackingInfo);
       }
-      
+
       toast.success("Order updated successfully");
       fetchOrderDetails();
     } catch (err) {
@@ -151,7 +148,7 @@ const OrderDetails = () => {
               }))}
             />
 
-            <button 
+            <button
               onClick={updateOrderStatus}
               disabled={updating || !trackingInfo.status}
             >
@@ -165,10 +162,10 @@ const OrderDetails = () => {
             <h2>Prescription Management</h2>
             {order.prescription ? (
               <>
-                <img 
-                  src={order.prescription.imageUrl} 
-                  alt="Prescription" 
-                  className="prescription-image" 
+                <img
+                  src={order.prescription.imageUrl}
+                  alt="Prescription"
+                  className="prescription-image"
                 />
                 <div className="verification-buttons">
                   <button

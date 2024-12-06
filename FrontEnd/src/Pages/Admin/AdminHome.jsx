@@ -4,6 +4,10 @@ import { useNavigate } from "react-router-dom";
 const AdminHome = () => {
   const navigate = useNavigate();
 
+  const handleNavigation = (path) => {
+    navigate(path);
+  };
+
   return (
     <div style={styles.container}>
       <h1 style={styles.title}>Admin Dashboard</h1>
@@ -25,31 +29,30 @@ const AdminHome = () => {
           <h3>Revenue</h3>
           <p>₹45,678</p>
         </div>
-        meAdminHome{" "}
       </div>
 
       <div style={styles.actionsContainer}>
         <button
           style={styles.actionButton}
-          onClick={() => navigate("/admin/products")}
+          onClick={() => handleNavigation("/admin/products")}
         >
           Manage Products
         </button>
         <button
           style={styles.actionButton}
-          onClick={() => navigate("/admin/orders")}
+          onClick={() => handleNavigation("/admin/orders")}
         >
           View Orders
         </button>
         <button
           style={styles.actionButton}
-          onClick={() => navigate("/admin/users")}
+          onClick={() => handleNavigation("/admin/users")}
         >
           Manage Users
         </button>
         <button
           style={styles.actionButton}
-          onClick={() => navigate("/admin/prescriptions")}
+          onClick={() => handleNavigation("/admin/prescriptions")}
         >
           Review Prescriptions
         </button>
