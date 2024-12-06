@@ -23,46 +23,47 @@ import OrderDetails from "./Pages/Admin/OrderDetails";
 function App() {
   const isLoggedIn = localStorage.getItem("isLoggedIn");
   const userRole = localStorage.getItem("userRole");
-  console.log("app", isLoggedIn);
-  console.log("app", userRole);
 
   return (
     <Router>
       <Navbar isLoggedIn={isLoggedIn} userRole={userRole} />
       <Routes>
         {/* Public Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Registration />} />
+        <Route path="/Medicine-search" element={<MedicineSearch />} />
 
-        <Route element={<ProtectedRoute />}>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Registration />} />
-          <Route path="/" element={<Navigate to="/home" />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/Medicine-search" element={<MedicineSearch />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route
-            path="/upload-prescription/:id"
-            element={<PrescriptionUpload />}
-          />
-          <Route path="*" element={<Navigate to="/home" />} />
-        </Route>
+        {/* User Routes */}
+        {userRole === "user" && (
+          <>
+            <Route path="/" element={<Navigate to="/home" />} />
+            <Route path="/home" element={<Home />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/upload-prescription/:id" element={<PrescriptionUpload />} />
+            </Route>
+          </>
+        )}
 
-        <Route element={<ProtectedRoute />}>
-          <Route path="/login" element={<Navigate to={"/"} />} />
-          <Route path="/register" element={<Navigate to={"/"} />} />
-          <Route path="/" element={<Navigate to="/admin-home" />} />
-          <Route path="/admin-home" element={<AdminHome />} />
-          <Route path="/admin/orders" element={<OrderManagement />} />
-          <Route path="/admin/orders/:orderId" element={<OrderDetails />} />
-          {/* <Route path="*" element={<Navigate to="/admin-home" />} /> */}
-        </Route>
+        {/* Admin Routes */}
+        {userRole === "admin" && (
+          <>
+            <Route path="/" element={<Navigate to="/admin-home" />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/admin-home" element={<AdminHome />} />
+              <Route path="/admin/orders" element={<OrderManagement />} />
+              <Route path="/admin/orders/:orderId" element={<OrderDetails />} />
+            </Route>
+          </>
+        )}
 
-        <>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Registration />} />
-          <Route path="/" element={<HomeLandingPage />} />
-        </>
+        {/* Default Landing Page */}
+        {!isLoggedIn && <Route path="/" element={<HomeLandingPage />} />}
+
+        {/* Catch all route */}
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
   );
