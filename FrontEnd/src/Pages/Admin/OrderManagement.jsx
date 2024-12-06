@@ -38,31 +38,27 @@ const OrderManagement = () => {
 
   const fetchOrders = async () => {
     try {
-      setLoading(true);
+      const token = localStorage.getItem("jwt");
       const response = await api.get("/orders/all", {
+        // Updated endpoint
         params: {
           page: pagination.page,
           limit: pagination.limit,
-          ...(filters.status && { status: filters.status }),
-          ...(filters.prescriptionRequired && {
-            prescriptionRequired: filters.prescriptionRequired
-          }),
-        }
+          ...filters,
+        },
       });
 
-      if (response.data.success) {
+      if (response.data.data.orders) {
         setOrders(response.data.data.orders);
-        setPagination(prev => ({
+        setPagination((prev) => ({
           ...prev,
           total: response.data.data.pagination.total,
-          pages: (
-            Math.ceil(response.data.data.pagination.total / response.data.data.paginationlimit) || response.data.data.pagination.pages
-          )
+          pages: response.data.data.pagination.pages,
         }));
       }
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-      toast.error(error.response?.data?.message || "Failed to fetch orders");
+    } catch (err) {
+      console.error("Error fetching orders:", err);
+      toast.error(err.response?.data?.message || "Failed to fetch orders");
     } finally {
       setLoading(false);
     }
@@ -90,13 +86,6 @@ const OrderManagement = () => {
 
   const viewOrderDetails = (orderId) => {
     navigate(`/admin/orders/${orderId}`);
-  };
-
-  const handlePageChange = (newPage) => {
-    setPagination(prev => ({
-      ...prev,
-      page: newPage
-    }));
   };
 
   return (
@@ -195,7 +184,9 @@ const OrderManagement = () => {
 
           <div className="pagination">
             <button
-              onClick={() => handlePageChange(pagination.page - 1)}
+              onClick={() =>
+                setPagination((prev) => ({ ...prev, page: prev.page - 1 }))
+              }
               disabled={pagination.page === 1}
             >
               Previous
@@ -204,7 +195,9 @@ const OrderManagement = () => {
               Page {pagination.page} of {pagination.pages}
             </span>
             <button
-              onClick={() => handlePageChange(pagination.page + 1)}
+              onClick={() =>
+                setPagination((prev) => ({ ...prev, page: prev.page + 1 }))
+              }
               disabled={pagination.page === pagination.pages}
             >
               Next

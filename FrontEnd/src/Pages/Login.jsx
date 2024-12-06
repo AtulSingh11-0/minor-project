@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../Hooks/AuthCheck";
 import api from "../Apis/Api";
 
-const Login = () => {
+const Login = ({ updateLoginState }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -30,6 +30,9 @@ const Login = () => {
       localStorage.setItem("jwt", token);
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("userRole", userRole);
+
+      // Call updateLoginState to trigger re-render
+      updateLoginState();
 
       // Update authentication state
       login(token);

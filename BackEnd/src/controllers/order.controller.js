@@ -271,6 +271,7 @@ exports.updateOrderStatus = async (req, res, next) => {
         ApiResponse.success("Order status updated successfully", { order })
       );
   } catch (err) {
+    
     next(err);
   }
 };

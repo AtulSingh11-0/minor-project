@@ -17,9 +17,14 @@ const OrderDetails = () => {
   });
 
   const validStatuses = [
-    "pending", "awaiting_prescription", "processing",
-    "confirmed", "packed", "shipped", "delivered", "cancelled"
-  ];
+  
+      "pending",
+      "processing",
+      "packed",
+      "shipped",
+      "delivered",
+      "cancelled",
+    ];
 
   useEffect(() => {
     fetchOrderDetails();
@@ -48,7 +53,7 @@ const OrderDetails = () => {
 
       // Update tracking info if provided
       if (trackingInfo.location || trackingInfo.description) {
-        await api.post(`/tracking/${orderId}`, trackingInfo);
+        await api.put(`/tracking/${orderId}`, trackingInfo);
       }
 
       toast.success("Order updated successfully");

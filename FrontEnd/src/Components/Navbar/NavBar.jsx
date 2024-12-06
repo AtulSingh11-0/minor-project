@@ -2,8 +2,13 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../Hooks/AuthCheck";
 
-const Navbar = ({ isLoggedIn, userRole }) => {
-  const { logout } = useAuth();
+const Navbar = ({ isLoggedIn, userRole, updateLoginState }) => {
+  const { logout: authLogout } = useAuth();
+
+  const handleLogout = () => {
+    authLogout();
+    updateLoginState();
+  };
 
   return (
     <nav>
@@ -40,7 +45,7 @@ const Navbar = ({ isLoggedIn, userRole }) => {
                   padding: "0",
                   font: "inherit",
                 }}
-                onClick={logout}
+                onClick={handleLogout}
               >
                 Logout
               </button>
@@ -68,7 +73,7 @@ const Navbar = ({ isLoggedIn, userRole }) => {
                   padding: "0",
                   font: "inherit",
                 }}
-                onClick={logout}
+                onClick={handleLogout}
               >
                 Logout
               </button>
