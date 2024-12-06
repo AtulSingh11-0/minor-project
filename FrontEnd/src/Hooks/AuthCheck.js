@@ -25,11 +25,16 @@ export const useAuth = () => {
     setIsAuthenticated(true);
   };
 
-  // Logout method
   const logout = () => {
+   
+    console.log( localStorage.getItem("jwt"),  localStorage.getItem("userRole"));
     localStorage.removeItem("jwt");
+    localStorage.removeItem("userRole");
     setIsAuthenticated(false);
+
     navigate("/login");
+    console.log("gone");
+    
   };
 
   return { isAuthenticated, login, logout };

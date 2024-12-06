@@ -12,16 +12,27 @@ const router = express.Router();
 router.use(protect);
 
 // Customer routes
-router.post("/create",  orderController.createOrder);
+router.post("/create", orderController.createOrder);
 router.get("/", orderController.getUserOrders);
 router.get(
   "/prescription-required",
   orderController.getPrescriptionRequiredOrders
 );
-router.get("/:id", orderController.getOrderById);
+router.get(
+  "/:id",
+  restrictTo("user", "admin", "pharmacy"),
+  orderController.getOrderById
+);
 router.put("/:id/cancel", orderController.cancelOrder);
 
 // Admin/Pharmacy routes
+router.get(
+  "/admin/all", // Changed from /all to /admin/all
+  protect,
+  restrictTo("admin", "pharmacy"),
+  orderController.getAllOrders
+);
+
 router.put(
   "/:id/status",
   restrictTo("admin", "pharmacy"),

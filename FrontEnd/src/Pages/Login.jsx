@@ -9,7 +9,7 @@ const Login = () => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth(); // Move hook to top level
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -17,38 +17,30 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await api.post("auth/login", {
-        email,
-        password,
-      });
-
-      console.log(response);
-      console.log(response.data.data.user.role);
-
-      localStorage.setItem("userRole", response.data.data.user.role);
+      const response = await api.post("auth/login", { email, password });
 
       if (!response.data?.data?.token) {
-        throw new Error("No token received from server");
+        throw new Error("Authentication token missing from response");
       }
 
-      const { token } = response.data.data;
-      console.log(token);
+      const token = response.data.data.token;
+      const userRole = response.data.data.user.role;
 
-      // Login and ensure state updates
+      // Store token and role in localStorage
+      localStorage.setItem("jwt", token);
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("userRole", userRole);
+
+      // Update authentication state
       login(token);
 
-      // Add slight delay before navigation
-      setTimeout(() => {
-        localStorage.getItem("userRole") === "admin"
-          ? navigate("/")
-          : navigate("/home");
-      }, 100);
+      // Redirect based on role
+      navigate(userRole === "admin" ? "/admin-home" : "/home");
     } catch (err) {
       console.error("Login error:", err);
       setError(
         err.response?.data?.message ||
-          err.message ||
-          "An error occurred during login."
+          "An error occurred during login. Please try again."
       );
     } finally {
       setIsLoading(false);

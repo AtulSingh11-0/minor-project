@@ -24,8 +24,6 @@ const Registration = () => {
         phone,
         address,
       });
-      console.log("running");
-console.log(response);
 
       // Extract the token from the response (if needed for future requests)
       const { token } = response.data.data;

@@ -64,7 +64,7 @@ exports.createOrder = async (req, res, next) => {
       totalAmount,
       shippingFee,
       tax,
-      prescriptionRequired, 
+      prescriptionRequired,
       prescriptionStatus: prescriptionRequired ? "pending" : "not_required",
       orderStatus: prescriptionRequired ? "awaiting_prescription" : "pending",
     });
@@ -79,7 +79,7 @@ exports.createOrder = async (req, res, next) => {
       );
 
       // Update order with payment status
-      order.paymentStatus = payment.status;  
+      order.paymentStatus = payment.status;
       await order.save();
 
       // Only update stock for non-prescription orders with successful payment
@@ -267,6 +267,54 @@ exports.updateOrderStatus = async (req, res, next) => {
         ApiResponse.success("Order status updated successfully", { order })
       );
   } catch (err) {
+    next(err);
+  }
+};
+
+exports.getAllOrders = async (req, res, next) => {
+  try {
+    const { 
+      page = 1, 
+      limit = 10, 
+      status, 
+      prescriptionRequired,
+      sortBy = 'createdAt', 
+      order = 'desc'
+    } = req.query;
+
+    // Build query
+    const query = {};
+    if (status && status !== '') {
+      query.orderStatus = status;
+    }
+    if (prescriptionRequired && prescriptionRequired !== '') {
+      query.prescriptionRequired = prescriptionRequired === 'true';
+    }
+
+    // Count total documents
+    const total = await Order.countDocuments(query);
+
+    // Get paginated results
+    const orders = await Order.find(query)
+      .populate('user', 'name email')
+      .populate('items.product')
+      .sort({ [sortBy]: order })
+      .skip((parseInt(page) - 1) * parseInt(limit))
+      .limit(parseInt(limit));
+
+    res.status(200).json(
+      ApiResponse.success("Orders retrieved successfully", {
+        orders,
+        pagination: {
+          total,
+          page: parseInt(page),
+          pages: Math.ceil(total / parseInt(limit)),
+          limit: parseInt(limit)
+        }
+      })
+    );
+  } catch (err) {
+    console.error("Error in getAllOrders:", err);
     next(err);
   }
 };

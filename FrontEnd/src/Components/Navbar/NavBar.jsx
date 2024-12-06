@@ -2,34 +2,53 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../Hooks/AuthCheck";
 
-const Navbar = () => {
+const Navbar = ({ isLoggedIn, userRole }) => {
   const { logout } = useAuth();
 
   return (
     <nav>
       <ul>
-        {!localStorage.getItem("jwt") && (
+        {/* Before Login */}
+        {!isLoggedIn ? (
           <>
-            {/* befor login */}
             <li>
-              <Link to="/home">Home</Link>
+              <Link to="/">Home</Link>
             </li>
             <li>
               <Link to="/Medicine-search">Medicines</Link>
             </li>
-
             <li>
               <Link to="/login">Login</Link>
             </li>
             <li>
-              <Link to="/register">register</Link>
+              <Link to="/register">Register</Link>
             </li>
           </>
-        )}
-
-        {localStorage.getItem("jwt") && (
+        ) : userRole === "admin" ? (
+          // Admin Navbar
           <>
-            {/* after login */}
+            <li>
+              <Link to="/admin-home">Admin Home</Link>
+            </li>
+            <li>
+              <button
+                style={{
+                  cursor: "pointer",
+                  backgroundColor: "transparent",
+                  border: "none",
+                  color: "inherit",
+                  padding: "0",
+                  font: "inherit",
+                }}
+                onClick={logout}
+              >
+                Logout
+              </button>
+            </li>
+          </>
+        ) : (
+          // User Navbar
+          <>
             <li>
               <Link to="/home">Home</Link>
             </li>
@@ -46,6 +65,8 @@ const Navbar = () => {
               <button
                 style={{
                   cursor: "pointer",
+                  padding: "0",
+                  font: "inherit",
                 }}
                 onClick={logout}
               >

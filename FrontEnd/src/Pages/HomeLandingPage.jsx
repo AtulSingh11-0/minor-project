@@ -4,25 +4,6 @@ import { Link } from "react-router-dom";
 const HomeLandingPage = () => {
   return (
     <div style={styles.container}>
-      <nav style={styles.navbar}>
-        <ul style={styles.navList}>
-          <li style={styles.navItem}>
-            <Link to="/" style={styles.navLink}>
-              Home
-            </Link>
-          </li>
-          <li style={styles.navItem}>
-            <Link to="/login" style={styles.navLink}>
-              Login
-            </Link>
-          </li>
-          <li style={styles.navItem}>
-            <Link to="/register" style={styles.navLink}>
-              Register
-            </Link>
-          </li>
-        </ul>
-      </nav>
       <h1 style={styles.title}>Welcome to Our E-Commerce Store</h1>
       <p style={styles.description}>
         Discover amazing products at great prices! not login
