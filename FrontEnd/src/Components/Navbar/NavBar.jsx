@@ -37,10 +37,13 @@ const Navbar = () => {
               <Link to="/admin/medicines">Manage Medicines</Link>
             </li>
             <li>
+              <Link to="/admin/orders">View Orders</Link>
+            </li>
+            <li>
               <button
                 style={{
                   cursor: "pointer",
-                  backgroundColor: "transparent",
+
                   border: "none",
                   color: "inherit",
                   padding: "0",

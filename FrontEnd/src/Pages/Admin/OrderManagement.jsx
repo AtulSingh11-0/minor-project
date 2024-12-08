@@ -141,11 +141,11 @@ const OrderManagement = () => {
                     className="order-row"
                   >
                     <td>{order._id}</td>
-                    <td>{order.user?.name}</td>
+                    <td>{order.user?.name || 'N/A'}</td>
                     <td className="items-cell">
                       {order.items.map((item) => (
                         <div key={item._id} className="order-item">
-                          <span className="item-name">{item.product.name}</span>
+                          <span className="item-name">{item.product?.name || 'Unknown Product'}</span>
                           <span className="item-quantity">
                             x {item.quantity}
                           </span>
