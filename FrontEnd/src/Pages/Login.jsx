@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../Hooks/AuthCheck";
 import api from "../Apis/Api";
 
-const Login = ({ updateLoginState }) => {
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -27,12 +27,9 @@ const Login = ({ updateLoginState }) => {
       const userRole = response.data.data.user.role;
 
       // Store token and role in localStorage
-      localStorage.setItem("jwt", token);
+      localStorage.setItem("token", token);
       localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userRole", userRole);
-
-      // Call updateLoginState to trigger re-render
-      updateLoginState();
+      localStorage.setItem("role", userRole);
 
       // Update authentication state
       login(token);

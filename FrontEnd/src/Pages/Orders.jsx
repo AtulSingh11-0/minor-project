@@ -6,36 +6,57 @@ import { toast } from "react-toastify";
 const TRACKING_STEPS = [
   { status: "pending", label: "Order Placed" },
   { status: "processing", label: "Processing" },
-  { status: "packed", label: "Packed" },  
+  { status: "packed", label: "Packed" },
   { status: "shipped", label: "Shipped" },
-  { status: "delivered", label: "Delivered" }
+  { status: "delivered", label: "Delivered" },
 ];
+
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 
 const OrderTrackingProgress = ({ currentStatus, updates }) => {
   const getCurrentStepIndex = () => {
     if (currentStatus === "cancelled") return -1;
-    return TRACKING_STEPS.findIndex(step => step.status === currentStatus);
+    return TRACKING_STEPS.findIndex((step) => step.status === currentStatus);
   };
 
   const currentStepIndex = getCurrentStepIndex();
 
   return (
     <div style={trackingStyles.container}>
-      <div style={{
-        ...trackingStyles.progressLine,
-        background: `linear-gradient(to right, 
+      <div
+        style={{
+          ...trackingStyles.progressLine,
+          background: `linear-gradient(to right, 
           #4CAF50 ${(currentStepIndex / (TRACKING_STEPS.length - 1)) * 100}%, 
-          rgba(255,255,255,0.2) ${(currentStepIndex / (TRACKING_STEPS.length - 1)) * 100}%)`
-      }} />
+          rgba(255,255,255,0.2) ${
+            (currentStepIndex / (TRACKING_STEPS.length - 1)) * 100
+          }%)`,
+        }}
+      />
       {TRACKING_STEPS.map((step, index) => {
-        const update = updates?.find(u => u.status === step.status);
+        const update = updates?.find((u) => u.status === step.status);
         const isCompleted = currentStepIndex > index;
         const isCurrent = currentStepIndex === index;
-        const statusClass = isCompleted ? "completed" : isCurrent ? "current" : "pending";
-        
+        const statusClass = isCompleted
+          ? "completed"
+          : isCurrent
+          ? "current"
+          : "pending";
+
         return (
           <div key={step.status} style={trackingStyles.stepContainer}>
-            <div style={trackingStyles.point[statusClass]} title={update?.description || step.label}>
+            <div
+              style={trackingStyles.point[statusClass]}
+              title={update?.description || step.label}
+            >
               {isCompleted && <span style={trackingStyles.checkmark}>✓</span>}
             </div>
             <div style={trackingStyles.stepLabel}>
@@ -44,7 +65,9 @@ const OrderTrackingProgress = ({ currentStatus, updates }) => {
                 <div style={trackingStyles.updateInfo}>
                   <small>{formatDate(update.timestamp)}</small>
                   {update.location && (
-                    <small style={trackingStyles.location}>{update.location}</small>
+                    <small style={trackingStyles.location}>
+                      {update.location}
+                    </small>
                   )}
                 </div>
               )}
@@ -58,78 +81,78 @@ const OrderTrackingProgress = ({ currentStatus, updates }) => {
 
 const trackingStyles = {
   container: {
-    position: 'relative',
-    display: 'flex',
-    justifyContent: 'space-between',
-    margin: '30px 0',
-    padding: '0 20px',
-    width: '100%',
+    position: "relative",
+    display: "flex",
+    justifyContent: "space-between",
+    margin: "30px 0",
+    padding: "0 20px",
+    width: "100%",
   },
   progressLine: {
-    position: 'absolute',
-    top: '12px',
-    left: '50px',
-    right: '50px',
-    height: '2px',
+    position: "absolute",
+    top: "12px",
+    left: "50px",
+    right: "50px",
+    height: "2px",
     zIndex: 1,
   },
   stepContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    position: 'relative',
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    position: "relative",
     zIndex: 2,
     flex: 1,
   },
   point: {
     completed: {
-      width: '24px',
-      height: '24px',
-      borderRadius: '50%',
-      backgroundColor: '#4CAF50',
-      border: '2px solid #45a049',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: '8px',
+      width: "24px",
+      height: "24px",
+      borderRadius: "50%",
+      backgroundColor: "#4CAF50",
+      border: "2px solid #45a049",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: "8px",
     },
     current: {
-      width: '24px',
-      height: '24px',
-      borderRadius: '50%',
-      backgroundColor: '#1e88e5',
-      border: '2px solid #1565c0',
-      boxShadow: '0 0 0 4px rgba(30, 136, 229, 0.2)',
-      marginBottom: '8px',
+      width: "24px",
+      height: "24px",
+      borderRadius: "50%",
+      backgroundColor: "#1e88e5",
+      border: "2px solid #1565c0",
+      boxShadow: "0 0 0 4px rgba(30, 136, 229, 0.2)",
+      marginBottom: "8px",
     },
     pending: {
-      width: '24px',
-      height: '24px',
-      borderRadius: '50%',
-      backgroundColor: '#666',
-      border: '2px solid #444',
-      marginBottom: '8px',
-    }
+      width: "24px",
+      height: "24px",
+      borderRadius: "50%",
+      backgroundColor: "#666",
+      border: "2px solid #444",
+      marginBottom: "8px",
+    },
   },
   stepLabel: {
-    fontSize: '0.8em',
-    color: 'white',
-    textAlign: 'center',
+    fontSize: "0.8em",
+    color: "white",
+    textAlign: "center",
   },
   updateInfo: {
-    display: 'flex',
-    flexDirection: 'column',
-    fontSize: '0.7em',
-    color: '#aaa',
-    marginTop: '4px',
+    display: "flex",
+    flexDirection: "column",
+    fontSize: "0.7em",
+    color: "#aaa",
+    marginTop: "4px",
   },
   location: {
-    fontStyle: 'italic'
+    fontStyle: "italic",
   },
   checkmark: {
-    color: 'white',
-    fontSize: '14px'
-  }
+    color: "white",
+    fontSize: "14px",
+  },
 };
 
 const Orders = () => {
@@ -279,16 +302,6 @@ const Orders = () => {
       cancelled: "#dc143c",
     };
     return colors[status] || "#808080";
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString("en-IN", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
   };
 
   const formatPrice = (price) => {
@@ -464,13 +477,16 @@ const Orders = () => {
                     <h4>Tracking Information</h4>
                     {trackingInfo[order._id] ? (
                       <>
-                        <OrderTrackingProgress 
+                        <OrderTrackingProgress
                           currentStatus={trackingInfo[order._id].currentStatus}
                           updates={trackingInfo[order._id].updates}
                         />
                         {trackingInfo[order._id].estimatedDelivery && (
                           <p style={styles.estimatedDelivery}>
-                            Estimated Delivery: {formatDate(trackingInfo[order._id].estimatedDelivery)}
+                            Estimated Delivery:{" "}
+                            {formatDate(
+                              trackingInfo[order._id].estimatedDelivery
+                            )}
                           </p>
                         )}
                       </>
@@ -785,17 +801,17 @@ const styles = {
     fontStyle: "italic",
   },
   trackingInfo: {
-    marginTop: '15px',
-    padding: '15px',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: '4px',
+    marginTop: "15px",
+    padding: "15px",
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    borderRadius: "4px",
   },
   estimatedDelivery: {
-    marginTop: '15px',
-    padding: '8px',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: '4px',
-    fontSize: '0.9em',
+    marginTop: "15px",
+    padding: "8px",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: "4px",
+    fontSize: "0.9em",
   },
 };
 

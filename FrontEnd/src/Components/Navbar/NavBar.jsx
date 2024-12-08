@@ -1,15 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../Hooks/AuthCheck";
 
-const Navbar = ({ isLoggedIn, userRole, updateLoginState }) => {
-  const { logout: authLogout } = useAuth();
-
+const Navbar = () => {
   const handleLogout = () => {
-    authLogout();
-    updateLoginState();
+    localStorage.clear();
+    window.location.href = "/login";
   };
-
+  const isLoggedIn = Boolean(localStorage.getItem("token"));
+  const userRole = localStorage.getItem("role");
   return (
     <nav>
       <ul>
@@ -34,6 +32,9 @@ const Navbar = ({ isLoggedIn, userRole, updateLoginState }) => {
           <>
             <li>
               <Link to="/admin-home">Admin Home</Link>
+            </li>
+            <li>
+              <Link to="/admin/medicines">Manage Medicines</Link>
             </li>
             <li>
               <button
