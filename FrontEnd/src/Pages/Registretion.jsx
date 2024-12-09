@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, Navigate } from "react-router-dom"; // Import Navigate
+import { useNavigate, Navigate, Link } from "react-router-dom"; // Import Navigate
 import api from "../Apis/Api";
 
 const Registration = () => {
@@ -25,7 +25,7 @@ const Registration = () => {
         address,
       });
       console.log("running");
-console.log(response);
+      console.log(response);
 
       // Extract the token from the response (if needed for future requests)
       const { token } = response.data.data;
@@ -44,131 +44,161 @@ console.log(response);
   };
 
   return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>Register</h1>
-      <form onSubmit={handleRegister} style={styles.form}>
-        {error && <p style={styles.error}>{error}</p>}
-        <div style={styles.inputGroup}>
-          <label style={styles.label} htmlFor="name">
-            Name:
-          </label>
-          <input
-            type="text"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            style={styles.input}
-          />
+    <div className="w-full min-h-screen relative pt-60">
+      {/* Background Image */}
+      <img
+        src="https://img.freepik.com/free-vector/abstract-background-with-hexagons_23-2148995949.jpg"
+        alt="Background"
+        className="absolute top-0 left-0 w-full h-full object-cover z-0"
+      />
+
+      {/* Register Form */}
+      <div className="relative max-w-4xl z-10 w-full mx-auto p-6 bg-white bg-opacity-90 rounded-2xl backdrop-brightness-110 backdrop-blur-3xl">
+        <div className=" flex justify-center left-[26rem] top-[-9rem] mb-6 absolute z-40">
+          <div className="bg-blue-500 rounded-full p-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1"
+              stroke="currentColor"
+              class="size-20 text-white"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z"
+              />
+            </svg>
+          </div>
         </div>
-        <div style={styles.inputGroup}>
-          <label style={styles.label} htmlFor="email">
-            Email:
-          </label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={styles.input}
-          />
-        </div>
-        <div style={styles.inputGroup}>
-          <label style={styles.label} htmlFor="password">
-            Password:
-          </label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={styles.input}
-          />
-        </div>
-        <div style={styles.inputGroup}>
-          <label style={styles.label} htmlFor="phone">
-            Phone:
-          </label>
-          <input
-            type="text"
-            id="phone"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            required
-            style={styles.input}
-          />
-        </div>
-        <div style={styles.inputGroup}>
-          <label style={styles.label} htmlFor="address">
-            Address:
-          </label>
-          <input
-            type="text"
-            id="address"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            required
-            style={styles.input}
-          />
-        </div>
-        <button type="submit" style={styles.button}>
-          Register
-        </button>
-      </form>
+        <form onSubmit={handleRegister} className="space-y-10">
+          {error && <p className="text-red-500 text-center">{error}</p>}
+          <div className="flex">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="size-10 w-28 text-white px-2 bg-blue-500"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
+                clip-rule="evenodd"
+              />
+            </svg>
+
+            <input
+              type="text"
+              id="name"
+              value={name}
+              placeholder="Name"
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="w-full px-2 text-white  bg-blue-200 mr-4  placeholder-gray-600 focus:placeholder-white focus:outline-none focus:bg-blue-400"
+            />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="size-10 w-28 text-white px-2 bg-blue-500"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M17.834 6.166a8.25 8.25 0 1 0 0 11.668.75.75 0 0 1 1.06 1.06c-3.807 3.808-9.98 3.808-13.788 0-3.808-3.807-3.808-9.98 0-13.788 3.807-3.808 9.98-3.808 13.788 0A9.722 9.722 0 0 1 21.75 12c0 .975-.296 1.887-.809 2.571-.514.685-1.28 1.179-2.191 1.179-.904 0-1.666-.487-2.18-1.164a5.25 5.25 0 1 1-.82-6.26V8.25a.75.75 0 0 1 1.5 0V12c0 .682.208 1.27.509 1.671.3.401.659.579.991.579.332 0 .69-.178.991-.579.3-.4.509-.99.509-1.671a8.222 8.222 0 0 0-2.416-5.834ZM15.75 12a3.75 3.75 0 1 0-7.5 0 3.75 3.75 0 0 0 7.5 0Z"
+                clip-rule="evenodd"
+              />
+            </svg>
+
+            <input
+              type="email"
+              id="email"
+              value={email}
+              placeholder="Email"
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-2 text-white  bg-blue-200 mr-3 placeholder-gray-600 focus:placeholder-white focus:outline-none focus:bg-blue-400"
+            />
+          <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                class="size-10 w-28 text-white px-2 bg-blue-500"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M12 1.5a5.25 5.25 0 0 0-5.25 5.25v3a3 3 0 0 0-3 3v6.75a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3v-6.75a3 3 0 0 0-3-3v-3c0-2.9-2.35-5.25-5.25-5.25Zm3.75 8.25v-3a3.75 3.75 0 1 0-7.5 0v3h7.5Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              placeholder="Password"
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full px-2 text-white  bg-blue-200 mr-4  placeholder-gray-600 focus:placeholder-white focus:outline-none focus:bg-blue-400"
+            />
+          </div>
+          <div className="flex">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="size-10 w-14 text-white px-2 bg-blue-500"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M1.5 4.5a3 3 0 0 1 3-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 0 1-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 0 0 6.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 0 1 1.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 0 1-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5Z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <input
+              type="text"
+              id="phone"
+              value={phone}
+              placeholder="Phone"
+              onChange={(e) => setPhone(e.target.value)}
+              required
+              className="w-[45%] px-2 text-white mr-4 bg-blue-200  placeholder-gray-600 focus:placeholder-white focus:outline-none focus:bg-blue-400"
+            />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="size-10 w-14 text-white px-2 bg-blue-500"
+            >
+              <path
+                fill-rule="evenodd"
+                d="m11.54 22.351.07.04.028.016a.76.76 0 0 0 .723 0l.028-.015.071-.041a16.975 16.975 0 0 0 1.144-.742 19.58 19.58 0 0 0 2.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 0 0-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 0 0 2.682 2.282 16.975 16.975 0 0 0 1.145.742ZM12 13.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <input
+              type="text"
+              id="address"
+              value={address}
+              placeholder="Address"
+              onChange={(e) => setAddress(e.target.value)}
+              required
+              className="px-2 text-white w-full bg-blue-200 mr-4  placeholder-gray-600 focus:placeholder-white focus:outline-none focus:bg-blue-400"
+            />
+          </div>
+          <div className="flex justify-between">
+          <div className="flex space-x-2">
+          <p>Already have an account?</p>
+          <Link to="/login" className="text-blue-700">Login</Link>  
+          </div>
+          <button
+            type="submit"
+            className={`w-[20%] py-2 mr-2 text-white text-md font-semibold rounded bg-blue-600 hover:bg-blue-500 transition-colors`}
+          >Register</button>
+          </div>
+        </form>
+      </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    maxWidth: "400px",
-    margin: "50px auto",
-    padding: "20px",
-    backgroundColor: "#333",
-    color: "#fff",
-    borderRadius: "8px",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-  },
-  title: {
-    textAlign: "center",
-    marginBottom: "20px",
-    fontSize: "24px",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-  },
-  inputGroup: {
-    marginBottom: "15px",
-  },
-  label: {
-    display: "block",
-    marginBottom: "5px",
-    fontSize: "14px",
-  },
-  input: {
-    width: "100%",
-    padding: "10px",
-    borderRadius: "4px",
-    border: "1px solid #ccc",
-    fontSize: "14px",
-  },
-  button: {
-    padding: "10px",
-    backgroundColor: "#555",
-    color: "#fff",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-    fontSize: "16px",
-  },
-  error: {
-    color: "red",
-    marginBottom: "15px",
-    textAlign: "center",
-  },
 };
 
 export default Registration;

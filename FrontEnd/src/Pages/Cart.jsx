@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import api from "../Apis/Api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
 const Cart = () => {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -72,7 +71,7 @@ const Cart = () => {
 
   const calculateTotals = () => {
     const subtotal = cart.totalAmount;
-    const shipping = subtotal > 500 ? 0 : 50; // Free shipping above ₹500
+    const shipping = cart?.items?.length ? (subtotal > 500 ? 0 : 50) : 0; // Free shipping above ₹500
     const tax = subtotal * 0.18; // 18% tax
     const total = subtotal + shipping + tax;
 
@@ -83,219 +82,189 @@ const Cart = () => {
     navigate("/checkout");
   };
 
-  if (loading) return <div style={styles.loading}>Loading cart...</div>;
-  if (error) return <div style={styles.error}>{error}</div>;
-  if (!cart?.items?.length)
-    return <div style={styles.empty}>Your cart is empty</div>;
+  if (loading)
+    return <div className="text-center p-5 text-white">Loading cart...</div>;
+  if (error) return <div className="text-center text-red-500 p-5">{error}</div>;
 
-  const cartSummarySection = cart?.items?.length ? (
-    <div style={styles.cartSummary}>
-      <h2>Cart Summary</h2>
-      {(() => {
-        const { subtotal, shipping, tax, total } = calculateTotals();
-        return (
-          <>
-            <div style={styles.summaryItem}>
-              <span>Subtotal:</span>
-              <span>₹{subtotal.toFixed(2)}</span>
-            </div>
-            <div style={styles.summaryItem}>
-              <span>Shipping:</span>
-              <span>{shipping ? `₹${shipping.toFixed(2)}` : "FREE"}</span>
-            </div>
-            <div style={styles.summaryItem}>
-              <span>Tax (18%):</span>
-              <span>₹{tax.toFixed(2)}</span>
-            </div>
-            <div style={{ ...styles.summaryItem, fontWeight: "bold" }}>
-              <span>Total:</span>
-              <span>₹{total.toFixed(2)}</span>
-            </div>
-            <div style={styles.cartActions}>
-              <button onClick={clearCart} style={styles.clearButton}>
-                Clear Cart
-              </button>
-              <button onClick={proceedToCheckout} style={styles.checkoutButton}>
-                Proceed to Checkout
-              </button>
-            </div>
-          </>
-        );
-      })()}
+  const cartSummarySection = cart ? (
+    <div className="bg-white p-6 rounded-lg shadow-xl sticky top-20 max-w-sm">
+      <h2 className="text-2xl font-bold text-blue-600 mb-6 border-b border-gray-400 pb-3">
+        Order Summary
+      </h2>
+      <div className="space-y-4">
+        {(() => {
+          const { subtotal, shipping, tax, total } = calculateTotals();
+          return (
+            <>
+              <div className="flex justify-between text-black">
+                <span>Subtotal</span>
+                <span>₹{subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-black">
+                <span>Shipping</span>
+                <span>
+                  {cart?.items?.length
+                    ? shipping
+                      ? `₹${shipping.toFixed(2)}`
+                      : "FREE"
+                    : "₹0.00"}
+                </span>
+              </div>
+              <div className="flex justify-between text-black">
+                <span>Tax (18%)</span>
+                <span>₹{tax.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between font-bold text-xl text-black border-t border-gray-400 pt-4">
+                <span>Total</span>
+                <span>₹{total.toFixed(2)}</span>
+              </div>
+            </>
+          );
+        })()}
+      </div>
+      <div className="mt-11 space-y-4 ">
+        <button
+          onClick={proceedToCheckout}
+          className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition-colors"
+        >
+          Proceed to Checkout
+        </button>
+        <button
+          onClick={clearCart}
+          className="w-full bg-red-600 text-white py-3 rounded-md hover:bg-red-700 transition-colors"
+        >
+          Clear Cart
+        </button>
+      </div>
     </div>
   ) : null;
 
-  return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>Shopping Cart</h1>
-
-      <div style={styles.cartItems}>
-        {cart.items.map((item) => (
-          <div key={item.product._id} style={styles.cartItem}>
-            <img
-              src={item.product.imageUrls?.[0] || "placeholder.jpg"}
-              alt={item.product.name}
-              style={styles.productImage}
-            />
-
-            <div style={styles.itemDetails}>
-              <h3>{item.product.name}</h3>
-              <p>₹{item.product.price} per unit</p>
-
-              <div style={styles.quantityControls}>
-                <button
-                  onClick={() =>
-                    updateQuantity(
-                      item.product._id,
-                      Math.max(1, item.quantity - 1)
-                    )
-                  }
-                  disabled={
-                    item.quantity <= 1 || updatingItems[item.product._id]
-                  }
-                >
-                  -
-                </button>
-                <span>{item.quantity}</span>
-                <button
-                  onClick={() =>
-                    updateQuantity(item.product._id, item.quantity + 1)
-                  }
-                  disabled={
-                    item.quantity >= item.product.stockQuantity ||
-                    updatingItems[item.product._id]
-                  }
-                >
-                  +
-                </button>
+  if (!cart?.items?.length)
+    return (
+      <div className="max-w-[90%]  m-auto px-4 py-8 text-black">
+        <h1 className="text-2xl font-bold mb-10">Shopping Cart</h1>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div className="md:col-span-2 space-y-6 bg-white rounded-xl shadow-xl h-[60vh]">
+            <div className="mt-9">
+              <img
+                src="../../public/emptyCart.svg"
+                alt=""
+                className="size-52 m-auto"
+              />
+              {/* https://cdn-icons-png.flaticon.com/512/11329/11329060.png */}
+              <div className="text-center text-4xl text-blue-600 p-10">
+                Your cart is empty
               </div>
-
-              <div style={styles.itemActions}>
-                <button
-                  onClick={() => removeItem(item.product._id)}
-                  style={styles.removeButton}
-                  disabled={updatingItems[item.product._id]}
-                >
-                  Remove
-                </button>
-              </div>
-            </div>
-
-            <div style={styles.itemTotal}>
-              ₹{(item.product.price * item.quantity).toFixed(2)}
             </div>
           </div>
-        ))}
+          <div className="md:col-span-1">{cartSummarySection}</div>
+        </div>
       </div>
+    );
 
-      {cartSummarySection}
+  return (
+    <div className="max-w-[90%] m-auto px-4 py-8 text-black">
+      <h1 className="text-2xl font-bold mb-10">Shopping Cart</h1>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+        {/* Cart Items Section */}
+        <div className="md:col-span-2 space-y-6 bg-white rounded-xl shadow-xl h-fit">
+          <table className="w-full">
+            <thead className="">
+              <tr className="text-left text-lg">
+                <th className="p-7">Product</th>
+                <th className="p-4 text-center">Price</th>
+                <th className="p-4 text-center">Quantity</th>
+                <th className="p-4 text-center">Total</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {cart.items.map((item) => (
+                <tr
+                  key={item.product._id}
+                  className="border-b-2 border-neutral-300 transition-colors relative"
+                >
+                  <td className="p-4 flex items-center space-x-4">
+                    <div className="ml-8">
+                      <img
+                        src={item.product.imageUrls?.[0] || "placeholder.jpg"}
+                        alt={item.product.name}
+                        className="w-28 h-28 object-cover rounded-md mb-4"
+                      />
+                      <h3 className="text-xl font-bold text-black">
+                        {item.product.name}
+                      </h3>
+                      <p className="text-gray-700">{item.product.category}</p>
+                    </div>
+                  </td>
+                  <td className="p-4 text-center">₹{item.product.price}</td>
+                  <td className="p-4 text-center">
+                    <div className="flex items-center justify-center space-x-4">
+                      <button
+                        onClick={() =>
+                          updateQuantity(
+                            item.product._id,
+                            Math.max(1, item.quantity - 1)
+                          )
+                        }
+                        disabled={
+                          item.quantity <= 1 || updatingItems[item.product._id]
+                        }
+                        className="bg-blue-700 text-white px-3 py-1 rounded-md disabled:opacity-50 hover:bg-blue-700"
+                      >
+                        -
+                      </button>
+                      <span className="text-black">{item.quantity}</span>
+                      <button
+                        onClick={() =>
+                          updateQuantity(item.product._id, item.quantity + 1)
+                        }
+                        disabled={
+                          item.quantity >= item.product.stockQuantity ||
+                          updatingItems[item.product._id]
+                        }
+                        className="bg-blue-700 text-white px-3 py-1 rounded-md disabled:opacity-50 hover:bg-blue-600"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </td>
+                  <td className="p-4 text-center text-xl font-bold text-blue-600">
+                    ₹{(item.product.price * item.quantity).toFixed(2)}
+                  </td>
+                  <td className="p-4 text-center">
+                    <button
+                      onClick={() => removeItem(item.product._id)}
+                      className="text-red-500 hover:text-red-400 disabled:opacity-50 absolute top-6 right-7"
+                      disabled={updatingItems[item.product._id]}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="1.5"
+                        stroke="currentColor"
+                        className="size-6"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M6 18 18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Cart Summary Section */}
+        <div className="md:col-span-1">{cartSummarySection}</div>
+      </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    padding: "20px",
-    maxWidth: "1200px",
-    margin: "0 auto",
-  },
-  title: {
-    textAlign: "center",
-    marginBottom: "30px",
-    color: "white",
-  },
-  loading: {
-    textAlign: "center",
-    padding: "20px",
-  },
-  error: {
-    color: "red",
-    textAlign: "center",
-    padding: "20px",
-  },
-  empty: {
-    textAlign: "center",
-    padding: "40px",
-    color: "white",
-  },
-  cartItems: {
-    marginBottom: "30px",
-    color: "white",
-  },
-  cartItem: {
-    display: "flex",
-    padding: "20px",
-    borderBottom: "1px solid #eee",
-    alignItems: "center",
-  },
-  productImage: {
-    width: "100px",
-    height: "100px",
-    objectFit: "cover",
-    marginRight: "20px",
-  },
-  itemDetails: {
-    flex: 1,
-  },
-  quantityControls: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    margin: "10px 0",
-  },
-  removeButton: {
-    color: "red",
-    border: "none",
-    background: "none",
-    cursor: "pointer",
-  },
-  itemTotal: {
-    fontSize: "1.2em",
-    fontWeight: "bold",
-  },
-  cartSummary: {
-    padding: "20px",
-    backgroundColor: "#f9f9f9",
-    borderRadius: "5px",
-  },
-  summaryItem: {
-    display: "flex",
-    justifyContent: "space-between",
-    margin: "10px 0",
-  },
-  checkoutButton: {
-    width: "100%",
-    padding: "15px",
-    backgroundColor: "#4CAF50",
-    color: "white",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-    marginTop: "20px",
-  },
-  cartActions: {
-    display: "flex",
-    gap: "10px",
-    marginTop: "20px",
-  },
-  clearButton: {
-    flex: 1,
-    padding: "15px",
-    backgroundColor: "#ff4444",
-    color: "white",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
-  loadingOverlay: {
-    opacity: 0.5,
-    pointerEvents: "none",
-  },
-  itemActions: {
-    display: "flex",
-    gap: "10px",
-    marginTop: "10px",
-  },
 };
 
 export default Cart;

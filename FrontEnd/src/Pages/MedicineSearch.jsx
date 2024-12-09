@@ -1,4 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { 
+  Search, 
+  Filter, 
+  ChevronDown, 
+  ChevronUp 
+} from "lucide-react";
 import api from "../Apis/Api";
 
 const MedicineSearch = () => {
@@ -12,14 +18,29 @@ const MedicineSearch = () => {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [loadingProducts, setLoadingProducts] = useState({}); // Track loading state per product
-  const [addedProducts, setAddedProducts] = useState({}); // Add this state
+  const [loadingProducts, setLoadingProducts] = useState({});
+  const [addedProducts, setAddedProducts] = useState({});
+
+  const [page, setPage] = useState(1); // Current page
+  const [totalPages, setTotalPages] = useState(1); // Total pages from API
+  const [sortBy, setSortBy] = useState(""); // Sorting criteria
 
   const fetchAllProducts = async () => {
     setIsLoading(true);
+    setError(null);
+
     try {
-      const response = await api.get("/products");
-      setProducts(response.data.data.products || []);
+      const response = await api.get("/products", {
+        params: {
+          query: search,
+          ...advancedFilters,
+          page,
+          sortBy,
+        },
+      });
+      const { products, pagination } = response.data.data;
+      setProducts(products);
+      setTotalPages(pagination.pages);
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -32,7 +53,7 @@ const MedicineSearch = () => {
 
   useEffect(() => {
     fetchAllProducts();
-  }, []);
+  }, [page, sortBy, advancedFilters]);
 
   const validatePriceFilters = () => {
     const min = Number(advancedFilters.minPrice);
@@ -47,18 +68,17 @@ const MedicineSearch = () => {
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!validatePriceFilters()) return;
+    setPage(1); // Reset to first page on new search
+    // fetchAllProducts();
     setError(null);
     setIsLoading(true);
 
     try {
       const response = await api.get(`/products/search?query=${search}`, {
         params: {
-          // search: search || undefined,
           ...advancedFilters,
         },
       });
-      console.log(response);
-
       setProducts(response.data.data.products || []);
     } catch (err) {
       setError(
@@ -70,268 +90,217 @@ const MedicineSearch = () => {
     }
   };
 
+  // const handleRetry = () => {
+  //   fetchAllProducts();
+  // };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPage(newPage);
+    }
+  };
+
+  // const handleSortChange = (e) => {
+  //   setSortBy(e.target.value);
+  // };
+
   const handleAddToCart = async (productId) => {
     setLoadingProducts((prev) => ({ ...prev, [productId]: true }));
     try {
       await api.post("/cart/add", {
         productId,
         quantity: 1,
-      });
+      }); 
       setAddedProducts((prev) => ({ ...prev, [productId]: true }));
     } catch (err) {
       alert(err.response?.data?.message || "Failed to add product to cart");
     } finally {
       setLoadingProducts((prev) => ({ ...prev, [productId]: false }));
     }
-  };
-
+  }
   return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>Product Search</h1>
-      <form onSubmit={handleSearch} style={styles.form}>
-        {error && <p style={styles.error}>{error}</p>}
-        <div style={styles.inputGroup}>
-          <label style={styles.label} htmlFor="search">
-            Name:
-          </label>
-          <input
-            type="text"
-            id="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={styles.input}
-            placeholder="Search by product name"
-          />
-        </div>
-        <button type="submit" style={styles.button} disabled={isLoading}>
-          {isLoading ? "Searching..." : "Search"}
-        </button>
-        <button
-          type="button"
-          onClick={() => setShowAdvanced(!showAdvanced)}
-          style={styles.toggleButton}
-        >
-          {showAdvanced ? "Hide Filters" : "Show Filters"}
-        </button>
-        {showAdvanced && (
-          <div style={styles.advancedFilters}>
-            <div style={styles.inputGroup}>
-              <label style={styles.label} htmlFor="category">
-                Category:
-              </label>
-              <input
-                type="text"
-                id="category"
-                value={advancedFilters.category}
-                onChange={(e) =>
-                  setAdvancedFilters((prev) => ({
-                    ...prev,
-                    category: e.target.value,
-                  }))
-                }
-                style={styles.input}
-                placeholder="Optional"
-              />
-            </div>
-            <div style={styles.inputGroup}>
-              <label style={styles.label} htmlFor="minPrice">
-                Min Price:
-              </label>
-              <input
-                type="number"
-                id="minPrice"
-                value={advancedFilters.minPrice}
-                onChange={(e) =>
-                  setAdvancedFilters((prev) => ({
-                    ...prev,
-                    minPrice: e.target.value,
-                  }))
-                }
-                style={styles.input}
-                placeholder="Optional"
-              />
-            </div>
-            <div style={styles.inputGroup}>
-              <label style={styles.label} htmlFor="maxPrice">
-                Max Price:
-              </label>
-              <input
-                type="number"
-                id="maxPrice"
-                value={advancedFilters.maxPrice}
-                onChange={(e) =>
-                  setAdvancedFilters((prev) => ({
-                    ...prev,
-                    maxPrice: e.target.value,
-                  }))
-                }
-                style={styles.input}
-                placeholder="Optional"
-              />
-            </div>
+    <div className="min-h-screen">
+      {/* Header */}
+
+      {/* Search Section */}
+      <div className="container mx-auto px-4 py-6">
+        <form onSubmit={handleSearch} className="mb-6">
+          <div className="relative">
+            <input 
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search for medicines, healthcare products..."
+              className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <Search 
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" 
+              size={20} 
+            />
+            <button 
+              type="submit" 
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+            >
+              <Search size={20} />
+            </button>
+          </div>
+
+          {/* Advanced Filters */}
+          <div className="mt-4">
+            <button 
+              type="button"
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="flex items-center text-blue-600 hover:text-blue-800"
+            >
+              {showAdvanced ? (
+                <>
+                  <ChevronUp size={20} className="mr-2" />
+                  Hide Filters
+                </>
+              ) : (
+                <>
+                  <Filter size={20} className="mr-2" />
+                  Show Filters
+                </>
+              )}
+            </button>
+
+            {showAdvanced && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                <input 
+                  type="text"
+                  value={advancedFilters.category}
+                  onChange={(e) => 
+                    setAdvancedFilters(prev => ({
+                      ...prev, 
+                      category: e.target.value
+                    }))
+                  }
+                  placeholder="Category"
+                  className="p-2 border rounded"
+                />
+                <input 
+                  type="number"
+                  value={advancedFilters.minPrice}
+                  onChange={(e) => 
+                    setAdvancedFilters(prev => ({
+                      ...prev, 
+                      minPrice: e.target.value
+                    }))
+                  }
+                  placeholder="Min Price"
+                  className="p-2 border rounded"
+                />
+                <input 
+                  type="number"
+                  value={advancedFilters.maxPrice}
+                  onChange={(e) => 
+                    setAdvancedFilters(prev => ({
+                      ...prev, 
+                      maxPrice: e.target.value
+                    }))
+                  }
+                  placeholder="Max Price"
+                  className="p-2 border rounded"
+                />
+              </div>
+            )}
+          </div>
+        </form>
+
+        {/* Error Handling */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <span className="block sm:inline">{error}</span>
           </div>
         )}
-      </form>
-      <div style={styles.results}>
-        {isLoading ? (
-          <p style={styles.loading}>Loading products...</p>
-        ) : products.length > 0 ? (
-          products.map((product) => (
-            <div key={product._id} style={styles.productCard}>
-              <h3 style={styles.productTitle}>{product.name}</h3>
-              <p style={styles.productDetails}>
-                Category: {product.category || "N/A"}
-              </p>
-              <p style={styles.productDetails}>Price: ₹{product.price}</p>
-              <button
-                onClick={() => handleAddToCart(product._id)}
-                disabled={
-                  loadingProducts[product._id] || addedProducts[product._id]
-                }
-                style={{
-                  ...styles.addToCartButton,
-                  ...(loadingProducts[product._id] || addedProducts[product._id]
-                    ? styles.buttonDisabled
-                    : {}),
-                  ...(addedProducts[product._id] && styles.addedButton),
-                }}
+
+        {/* Products Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mx-4">
+          {isLoading ? (
+            // Skeleton Loader
+            [...Array(10)].map((_, index) => (
+              <div 
+                key={index} 
+                className="bg-white border rounded-lg p-4 animate-pulse"
               >
-                {loadingProducts[product._id]
-                  ? "Adding..."
-                  : addedProducts[product._id]
-                  ? "Added ✓"
-                  : "Add to Cart"}
-              </button>
+                <div className="h-40 bg-gray-300 mb-4 rounded"></div>
+                <div className="h-4 bg-gray-300 mb-2 w-3/4"></div>
+                <div className="h-4 bg-gray-300 mb-2 w-1/2"></div>
+                <div className="h-10 bg-gray-300 rounded"></div>
+              </div>
+            ))
+          ) : products.length > 0 ? (
+            products.map((product) => (
+              <div 
+                key={product._id} 
+                className="bg-white border rounded-lg p-4 hover:shadow-lg transition-shadow"
+              >
+                <img 
+                  src={product.imageUrls?.[0] || "placeholder.jpg"} 
+                  alt={product.name}
+                  className=" w-40 h-40 object-cover mb-9 m-auto p-4 rounded"
+                />
+                <h3 className="font-semibold text-lg mb-2 line-clamp-2">
+                  {product.name}
+                </h3>
+                <p className="text-gray-600 text-sm mb-2">
+                  {product.category || "General Medicine"}
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="text-xl font-bold text-blue-600">
+                    ₹{product.price}
+                  </span>
+                  <button
+                    onClick={() => handleAddToCart(product._id)}
+                    disabled={
+                      loadingProducts[product._id] || addedProducts[product._id]
+                    }
+                    className={`
+                      px-4 py-2 rounded text-sm font-semibold
+                      ${
+                        loadingProducts[product._id] || addedProducts[product._id]
+                          ? "bg-green-500 text-white cursor-not-allowed"
+                          : "bg-blue-600 text-white hover:bg-blue-700"
+                      }
+                    `}
+                  >
+                    {loadingProducts[product._id]
+                      ? "Adding..."
+                      : addedProducts[product._id]
+                      ? "Added ✓"
+                      : "Add to Cart"}
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-10 text-gray-500">
+              No products found. Try a different search.
             </div>
-          ))
-        ) : (
-          <p style={styles.noResults}>No products found</p>
-        )}
+          )}
+        </div>
+        {/* Pagination */}
+        <div className="flex justify-center mt-6">
+          <button
+            disabled={page === 1}
+            onClick={() => handlePageChange(page - 1)}
+            className="px-4 py-2 border rounded"
+          >
+            Previous
+          </button>
+          <span className="px-4 py-2">{`Page ${page} of ${totalPages}`}</span>
+          <button
+            disabled={page === totalPages}
+            onClick={() => handlePageChange(page + 1)}
+            className="px-4 py-2 border rounded"
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );
-};
-
-const styles = {
-  // Same styles from the original code
-  container: {
-    maxWidth: "600px",
-    margin: "50px auto",
-    padding: "20px",
-    backgroundColor: "#333",
-    color: "#fff",
-    borderRadius: "8px",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-  },
-  title: {
-    textAlign: "center",
-    marginBottom: "20px",
-    fontSize: "24px",
-  },
-  form: { display: "flex", flexDirection: "column" },
-  inputGroup: {
-    marginBottom: "15px",
-  },
-  label: {
-    display: "block",
-    marginBottom: "5px",
-    fontSize: "14px",
-    color: "#ccc",
-  },
-  input: {
-    width: "100%",
-    padding: "10px",
-    borderRadius: "4px",
-    border: "1px solid #ccc",
-    fontSize: "14px",
-    backgroundColor: "#444",
-    color: "#fff",
-  },
-  button: {
-    padding: "10px",
-    backgroundColor: "#555",
-    color: "#fff",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-    fontSize: "16px",
-    marginTop: "10px",
-  },
-  toggleButton: {
-    padding: "8px",
-    backgroundColor: "#666",
-    color: "#fff",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-    fontSize: "14px",
-    marginTop: "10px",
-  },
-  advancedFilters: {
-    marginTop: "15px",
-    padding: "15px",
-    backgroundColor: "#444",
-    borderRadius: "4px",
-  },
-  error: {
-    color: "red",
-    marginBottom: "15px",
-    textAlign: "center",
-  },
-  results: {
-    marginTop: "20px",
-  },
-  productCard: {
-    backgroundColor: "#444",
-    padding: "10px",
-    borderRadius: "4px",
-    marginBottom: "10px",
-  },
-  productTitle: {
-    fontSize: "18px",
-    color: "#fff",
-  },
-  productDetails: {
-    fontSize: "14px",
-    color: "#ccc",
-  },
-  loading: {
-    textAlign: "center",
-    color: "#ccc",
-    padding: "20px",
-  },
-  noResults: {
-    textAlign: "center",
-    color: "#ccc",
-    padding: "20px",
-  },
-  addToCartButton: {
-    padding: "8px 16px",
-    backgroundColor: "#4CAF50",
-    color: "#fff",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-    fontSize: "14px",
-    marginTop: "10px",
-    width: "100%",
-    transition: "background-color 0.3s",
-    "&:hover": {
-      backgroundColor: "#45a049",
-    },
-    "&:disabled": {
-      backgroundColor: "#666",
-      cursor: "not-allowed",
-    },
-  },
-  buttonDisabled: {
-    opacity: 0.7,
-    cursor: "not-allowed",
-  },
-  addedButton: {
-    backgroundColor: "#45a049",
-    cursor: "default",
-  },
 };
 
 export default MedicineSearch;
