@@ -40,6 +40,9 @@ const Navbar = () => {
               <Link to="/admin/orders">View Orders</Link>
             </li>
             <li>
+              <Link to="/admin/check-prescriptions"> Prescriptions</Link>
+            </li>
+            <li>
               <button
                 style={{
                   cursor: "pointer",

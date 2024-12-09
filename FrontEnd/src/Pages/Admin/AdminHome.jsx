@@ -52,7 +52,7 @@ const AdminHome = () => {
         </button>
         <button
           style={styles.actionButton}
-          onClick={() => handleNavigation("/admin/prescriptions")}
+          onClick={() => handleNavigation("/admin/check-prescriptions")} // Changed from "/admin/prescriptions"
         >
           Review Prescriptions
         </button>

@@ -21,6 +21,8 @@ import OrderManagement from "./Pages/Admin/OrderManagement";
 import OrderDetails from "./Pages/Admin/OrderDetails";
 import RedirectIfLoggedIn from "./Pages/RedirectIfLoggedIn";
 import MedicineManagement from "./Pages/Admin/MedicineManagement";
+import PrescriptionApproval from "./Pages/Admin/CheckPrescription";
+import PendingPrescriptionsList from "./Pages/Admin/PendingPrescriptionsList";
 
 function App() {
   return (
@@ -134,6 +136,22 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <MedicineManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/check-prescriptions/:orderId"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <PrescriptionApproval />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/check-prescriptions"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <PendingPrescriptionsList />
             </ProtectedRoute>
           }
         />
