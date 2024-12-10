@@ -7,7 +7,6 @@ const MedicineManagement = () => {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
-  const [imageFiles, setImageFiles] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -32,7 +31,11 @@ const MedicineManagement = () => {
   const fetchMedicines = async () => {
     try {
       const response = await api.get("/products");
-      setMedicines(response.data.data.products);
+      // Filter out medicines with awaiting_prescription status
+      const filteredMedicines = response.data.data.products.filter(
+        medicine => medicine.orderStatus !== "awaiting_prescription"
+      );
+      setMedicines(filteredMedicines);
     } catch (err) {
       toast.error("Failed to fetch medicines");
     } finally {
@@ -44,69 +47,42 @@ const MedicineManagement = () => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === "checkbox" ? checked : 
+              name === "imageUrls" ? value :
+              value
     }));
   };
 
   const handleArrayInput = (e, field) => {
-    const value = e.target.value.split(",").map((item) => item.trim());
+    // Handle empty input case
+    const value = e.target.value ? e.target.value.split(",").map(item => item.trim()) : [];
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
   };
 
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    setImageFiles(files);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formDataToSend = new FormData();
 
-    // Format the data according to API schema
     const dataToSend = {
       ...formData,
       price: Number(formData.price),
       stockQuantity: Number(formData.stockQuantity),
+      // Convert date string to ISO format
+      expiryDate: new Date(formData.expiryDate).toISOString(),
+      imageUrls: formData.imageUrls.toString().split(',').map(url => url.trim())
     };
-
-    // Append all non-file data
-    Object.keys(dataToSend).forEach((key) => {
-      if (key !== "imageUrls") {
-        if (Array.isArray(dataToSend[key])) {
-          formDataToSend.append(key, JSON.stringify(dataToSend[key]));
-        } else {
-          formDataToSend.append(key, dataToSend[key]);
-        }
-      }
-    });
-
-    // Append new images if any
-    imageFiles.forEach((file) => {
-      formDataToSend.append("images", file);
-    });
-
-    // If editing and no new images uploaded, keep existing images
-    if (editingId && imageFiles.length === 0 && formData.imageUrls.length > 0) {
-      formDataToSend.append(
-        "existingImages",
-        JSON.stringify(formData.imageUrls)
-      );
-    }
 
     try {
       if (editingId) {
-        await api.put(`/products/${editingId}`, formDataToSend, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        await api.put(`/products/${editingId}`, dataToSend);
         toast.success("Medicine updated successfully");
+        alert("Medicine updated successfully");
       } else {
-        await api.post("/products", formDataToSend, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        await api.post("/products", dataToSend);
         toast.success("Medicine created successfully");
+        alert("Medicine created successfully");
       }
 
       resetForm();
@@ -119,13 +95,12 @@ const MedicineManagement = () => {
   const handleEdit = (medicine) => {
     setEditingId(medicine._id);
     setFormData({
-      name: medicine.name,
-      description: medicine.description,
-      price: medicine.price,
-      stockQuantity: medicine.stockQuantity,
-      category: medicine.category,
-      manufacturer: medicine.manufacturer,
-      requiresPrescription: medicine.requiresPrescription,
+      ...medicine,
+      // Format the date to YYYY-MM-DD for the input
+      expiryDate: new Date(medicine.expiryDate).toISOString().split('T')[0],
+      activeIngredients: medicine.activeIngredients || [],
+      sideEffects: medicine.sideEffects || [],
+      contraindications: medicine.contraindications || [],
       imageUrls: medicine.imageUrls || [],
     });
     setIsCreating(true);
@@ -154,8 +129,13 @@ const MedicineManagement = () => {
       manufacturer: "",
       requiresPrescription: false,
       imageUrls: [],
+      activeIngredients: [], // Initialize empty arrays
+      sideEffects: [],
+      contraindications: [],
+      dosageForm: "tablet",
+      expiryDate: "",
+      batchNumber: "",
     });
-    setImageFiles([]);
     setEditingId(null);
     setIsCreating(false);
   };
@@ -246,7 +226,7 @@ const MedicineManagement = () => {
               type="text"
               name="activeIngredients"
               placeholder="Active Ingredients (comma separated)"
-              value={formData.activeIngredients.join(", ")}
+              value={formData.activeIngredients?.join(", ") || ""} // Add null check
               onChange={(e) => handleArrayInput(e, "activeIngredients")}
               style={styles.input}
               required
@@ -256,7 +236,7 @@ const MedicineManagement = () => {
               type="text"
               name="sideEffects"
               placeholder="Side Effects (comma separated)"
-              value={formData.sideEffects.join(", ")}
+              value={formData.sideEffects?.join(", ") || ""} // Add null check
               onChange={(e) => handleArrayInput(e, "sideEffects")}
               style={styles.input}
             />
@@ -265,7 +245,7 @@ const MedicineManagement = () => {
               type="text"
               name="contraindications"
               placeholder="Contraindications (comma separated)"
-              value={formData.contraindications.join(", ")}
+              value={formData.contraindications?.join(", ") || ""} // Add null check
               onChange={(e) => handleArrayInput(e, "contraindications")}
               style={styles.input}
             />
@@ -299,11 +279,12 @@ const MedicineManagement = () => {
               <label htmlFor="prescription">Requires Prescription</label>
             </div>
             <input
-              type="file"
-              multiple
-              onChange={handleImageChange}
-              accept="image/*"
-              style={styles.fileInput}
+              type="text"
+              name="imageUrls"
+              placeholder="Image URLs (comma separated)"
+              value={formData.imageUrls}
+              onChange={handleInputChange}
+              style={styles.input}
             />
             <div style={styles.buttonGroup}>
               <button type="submit" style={styles.submitButton}>

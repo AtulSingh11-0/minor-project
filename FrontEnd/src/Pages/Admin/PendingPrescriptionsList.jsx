@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import api from "../../Apis/Api";
 import { toast } from "react-toastify";
 
 const PendingPrescriptionsList = () => {
   const [prescriptions, setPrescriptions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const [updating, setUpdating] = useState({});
+  const [notes, setNotes] = useState({});
 
   useEffect(() => {
     fetchPendingPrescriptions();
@@ -15,11 +15,37 @@ const PendingPrescriptionsList = () => {
   const fetchPendingPrescriptions = async () => {
     try {
       const response = await api.get("/prescriptions/pending");
+      console.log(response);
+
       setPrescriptions(response.data.data.prescriptions);
     } catch (err) {
       toast.error("Failed to fetch pending prescriptions");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleVerification = async (prescriptionId, status) => {
+    if (!prescriptionId || !status) return;
+    
+    if (status === "rejected" && !notes[prescriptionId]) {
+      toast.error("Please provide rejection notes");
+      return;
+    }
+
+    setUpdating(prev => ({ ...prev, [prescriptionId]: true }));
+
+    try {
+      await api.put(`/prescriptions/${prescriptionId}/verify`, {
+        status,
+        notes: notes[prescriptionId] || ""
+      });
+      toast.success(`Prescription ${status} successfully`);
+      fetchPendingPrescriptions();
+    } catch (err) {
+      toast.error(`Failed to ${status} prescription`);
+    } finally {
+      setUpdating(prev => ({ ...prev, [prescriptionId]: false }));
     }
   };
 
@@ -39,16 +65,38 @@ const PendingPrescriptionsList = () => {
               <p>
                 Date: {new Date(prescription.createdAt).toLocaleDateString()}
               </p>
-              <button
-                style={styles.button}
-                onClick={() =>
-                  navigate(
-                    `/admin/check-prescriptions/${prescription.order._id}`
-                  )
-                }
-              >
-                Review Prescription
-              </button>
+              <img 
+                src={prescription.imageUrl} 
+                alt="Prescription"
+                style={styles.prescriptionImage}
+              />
+              <div style={styles.verificationForm}>
+                <textarea
+                  placeholder="Enter notes (required for rejection)"
+                  value={notes[prescription._id] || ""}
+                  onChange={(e) => setNotes(prev => ({
+                    ...prev,
+                    [prescription._id]: e.target.value
+                  }))}
+                  style={styles.notesInput}
+                />
+                <div style={styles.buttonGroup}>
+                  <button
+                    onClick={() => handleVerification(prescription._id, "approved")}
+                    disabled={updating[prescription._id]}
+                    style={{...styles.button, ...styles.approveButton}}
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => handleVerification(prescription._id, "rejected")}
+                    disabled={updating[prescription._id]}
+                    style={{...styles.button, ...styles.rejectButton}}
+                  >
+                    Reject
+                  </button>
+                </div>
+              </div>
             </div>
           ))}
         </div>
@@ -97,6 +145,39 @@ const styles = {
     border: "none",
     borderRadius: "4px",
     cursor: "pointer",
+  },
+  prescriptionImage: {
+    width: "100%",
+    maxHeight: "300px",
+    objectFit: "contain",
+    marginTop: "10px",
+    borderRadius: "4px",
+  },
+  verificationForm: {
+    marginTop: "15px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+  },
+  notesInput: {
+    width: "100%",
+    minHeight: "80px",
+    padding: "8px",
+    borderRadius: "4px",
+    backgroundColor: "#444",
+    border: "1px solid #555",
+    color: "white",
+    resize: "vertical",
+  },
+  buttonGroup: {
+    display: "flex",
+    gap: "10px",
+  },
+  approveButton: {
+    backgroundColor: "#4CAF50",
+  },
+  rejectButton: {
+    backgroundColor: "#dc143c",
   },
 };
 
