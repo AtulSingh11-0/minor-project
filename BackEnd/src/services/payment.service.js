@@ -85,12 +85,6 @@ class PaymentService {
 
     // Update order payment status
     order.paymentStatus = status;
-    
-    // Update order status to processing for successful card/wallet payments
-    if (status === "completed" && ["card", "wallet"].includes(method)) {
-      order.orderStatus = "processing";
-    }
-    
     await order.save();
 
     return payment;
