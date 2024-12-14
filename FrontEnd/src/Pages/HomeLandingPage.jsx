@@ -12,17 +12,17 @@ const HomeLandingPage = () => {
         className="absolute top-0 left-0 w-full h-full object-cover z-0 "
       />
       {/* Main Content */}
-      <main className="text-center px-6 pt-20  animate-fadeIn">
+      <main className="text-center md:px-6 md:pt-20  animate-fadeIn">
         {/* Animated Image */}
         <img
           src={bg1}
           alt=""
           className="w-72 m-auto transform -translate-y-20 opacity-0 animate-fadeInImage"
         />
-        <h1 className="text-5xl font-extrabold text-blue-700 mb-6">
-          Welcome to Our E-Commerce Store
+        <h1 className="text-2xl md:text-5xl font-extrabold text-blue-700 mb-6">
+          Welcome to Our Online Medicine Shop
         </h1>
-        <p className="text-lg text-gray-600 mb-8">
+        <p className="text-lg text-gray-600 mb-8 px-2">
           Discover amazing products at great prices! Not logged in yet? Join us
           today.
         </p>

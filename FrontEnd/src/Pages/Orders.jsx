@@ -11,6 +11,16 @@ const TRACKING_STEPS = [
   { status: "delivered", label: "Delivered" },
 ];
 
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
 const OrderTrackingProgress = ({ currentStatus, updates }) => {
   const getCurrentStepIndex = () => {
     if (currentStatus === "cancelled") return -1;
@@ -20,10 +30,10 @@ const OrderTrackingProgress = ({ currentStatus, updates }) => {
   const currentStepIndex = getCurrentStepIndex();
 
   return (
-    <div className="relative flex justify-between items-center w-full px-5 mt-8">
+    <div className="relative md:flex md:justify-between items-center w-full px-5 md:mt-8 hidden">
       {/* Progress Line */}
       <div
-        className="absolute top-[16px] left-0 right-0 h-[2px] z-0 mx-36"
+        className="absolute top-[16px] left-0 right-0 h-[2px] z-0 mx-36 hidden md:block"
         style={{
           background: `linear-gradient(to right, 
             #4CAF50 ${(currentStepIndex / (TRACKING_STEPS.length - 1)) * 100}%, 
@@ -52,8 +62,8 @@ const OrderTrackingProgress = ({ currentStatus, updates }) => {
             {/* Step Point */}
             <div
               className={`
-                w-8 h-8 rounded-full border-2 flex items-center justify-center 
-                mb-2 transition-all duration-300 ease-in-out
+                w-8 h-8 rounded-full border-2 md:flex md:items-center justify-center 
+                mb-2 transition-all duration-300 ease-in-out hidden
                 ${statusClass}
                 `}
               title={update?.description || step.label}
@@ -77,7 +87,7 @@ const OrderTrackingProgress = ({ currentStatus, updates }) => {
             </div>
 
             {/* Step Label */}
-            <div className="text-center">
+            <div className="text-center hidden md:block">
               <div className="text-sm font-medium text-gray-700">
                 {step.label}
               </div>
@@ -142,7 +152,7 @@ const Orders = () => {
 
   const fetchOrders = async () => {
     try {
-      const token = localStorage.getItem("jwt");
+      const token = localStorage.getItem("token");
       const response = await api.get("/orders", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -159,7 +169,7 @@ const Orders = () => {
 
   const fetchPrescriptionStatus = async () => {
     try {
-      const token = localStorage.getItem("jwt");
+      const token = localStorage.getItem("token");
       const response = await api.get("/prescriptions/my-prescriptions", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -182,7 +192,7 @@ const Orders = () => {
   const fetchTrackingInfo = async (orderId, signal) => {
     setTrackingLoading((prev) => ({ ...prev, [orderId]: true }));
     try {
-      const token = localStorage.getItem("jwt");
+      const token = localStorage.getItem("token");
       const response = await api.get(`/tracking/${orderId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -214,7 +224,7 @@ const Orders = () => {
     if (reason === null) return; // User clicked cancel
 
     try {
-      const token = localStorage.getItem("jwt");
+      const token = localStorage.getItem("token");
       await api.put(
         `/orders/${orderId}/cancel`,
         { reason },
@@ -244,16 +254,6 @@ const Orders = () => {
       cancelled: "bg-red-600 text-red-600",
     };
     return colors[status] || "bg-gray-500 text-gray-500";
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString("en-IN", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
   };
 
   const formatPrice = (price) => {
@@ -322,7 +322,7 @@ const Orders = () => {
     formData.append("prescriptionImage", uploadFile);
 
     try {
-      const token = localStorage.getItem("jwt");
+      const token = localStorage.getItem("token");
       const response = await api.post(
         `/prescriptions/upload/${orderId}`,
         formData,
@@ -392,17 +392,17 @@ const Orders = () => {
         orders.map((order) => (
           <div
             key={order._id}
-            className="bg-white rounded-lg p-6 mb-6 shadow-lg"
+            className="bg-white rounded-lg p-6 sm:mb-6 shadow-lg"
           >
-            <div className="flex justify-between text-black">
-              <div>
+            <div className="md:flex justify-between text-black">
+              <div className="mb-5">
                 <h3 className="text-2xl">Order ID: #{order._id.slice(-8)}</h3>
                 <p className="text-sm text-neutral-600">
                   {formatDate(order.createdAt)}
                 </p>
               </div>
               <div
-                className={`py-2 bg-opacity-10 flex px-5 rounded-xl text-sm mb-6 font-bold ${getStatusColor(
+                className={`py-2 bg-opacity-10 flex justify-center px-5 rounded-xl text-sm md:mb-10 font-bold ${getStatusColor(
                   order.orderStatus
                 )}`}
               >
@@ -414,7 +414,7 @@ const Orders = () => {
                 <p>Tracking Number: {order.trackingNumber}</p>
               )}
               {trackingInfo[order._id] && !trackingLoading[order._id] && (
-                <div className="mt-4 p-4 bg-opacity-10 bg-white rounded-lg">
+                <div className="md:mt-4 md:p-4 bg-opacity-10 bg-white rounded-lg">
                   {/* <h4 className="text-lg font-semibold">Tracking Information</h4> */}
                   {trackingInfo[order._id] ? (
                     <>
@@ -444,7 +444,7 @@ const Orders = () => {
             </div>
 
             <div className="py-4">
-              <div className="grid grid-cols-5 font-bold border-b pb-2 mb-2 px-6 py-3">
+              <div className="grid grid-cols-5 font-bold border-b pb-2 mb-2 md:px-6 py-3">
                 <div className="col-span-3">Product</div>
                 <div className="text-center">Quantity</div>
                 <div className="text-right">Price</div>
@@ -452,13 +452,13 @@ const Orders = () => {
               {order.items.map((item) => (
                 <div
                   key={item._id}
-                  className="grid grid-cols-5 items-center mb-2 pb-2 px-6 py-3"
+                  className="grid grid-cols-5 items-center mb-2 pb-2 md:px-6 py-3"
                 >
                   <div className="flex items-center col-span-3 ">
                     <img
                       src={item.product.imageUrls?.[0] || "placeholder.jpg"}
                       alt={item.product.name}
-                      className="w-16 h-16 object-cover rounded-lg mr-4"
+                      className="w-16 h-16 object-cover rounded-lg mr-1 md:mr-4"
                     />
                     <span className="font-semibold">{item.product.name}</span>
                   </div>
@@ -466,11 +466,11 @@ const Orders = () => {
                   <div className="text-right">₹{item.price}</div>
                 </div>
               ))}
-              <div className="grid grid-cols-3 font-semibold mt-4 px-6 py-3 ">
-                <p className="">
+              <div className="grid md:grid-cols-3 font-semibold mt-4 px-6 py-3 ">
+                <p>
                   Payment Status: {getStatusText(order.paymentStatus)}
                 </p>
-                <p className="col-span-2 text-end">
+                <p className="col-span-2 md:text-end">
                   <span className="">Total: </span>
                   {formatPrice(order.totalAmount)}
                 </p>
@@ -478,94 +478,96 @@ const Orders = () => {
               </div>
             </div>
 
-            <div className="flex justify-end items-center mt-6">
-              <div className="flex gap-4">
-                {!["delivered", "cancelled"].includes(order.orderStatus) && (
-                  <button
-                    onClick={() => cancelOrder(order._id)}
-                    className="bg-red-500 text-black py-2 px-4 rounded transition-transform hover:scale-105 active:scale-95"
-                  >
-                    Cancel Order
-                  </button>
-                )}
+            <div className="flex justify-center md:justify-end items-center mt-6">
+  <div className="flex flex-col w-64 gap-4 p-4  rounded-lg max-w-xl">
+    {/* Cancel Order Button */}
+    {!["delivered", "cancelled"].includes(order.orderStatus) && (
+      <button
+        onClick={() => cancelOrder(order._id)}
+        className="bg-red-500 text-white py-2 px-4 rounded-lg shadow-sm transition-transform hover:scale-105 active:scale-95 hover:bg-red-600"
+      >
+        Cancel Order
+      </button>
+    )}
 
-                {(order.prescriptionStatus === "pending" ||
-                  order.orderStatus === "awaiting_prescription") &&
-                  !prescriptionUploads[order._id] && (
-                    <>
-                      {selectedOrderId === order._id ? (
-                        <div className="flex flex-col gap-4 w-full max-w-md">
-                          <input
-                            type="file"
-                            onChange={handleFileChange}
-                            accept=".jpg,.jpeg,.png,.pdf"
-                            id={`prescription-${order._id}`}
-                            className="hidden"
-                          />
-                          <label
-                            htmlFor={`prescription-${order._id}`}
-                            className="py-2 px-4 bg-gray-700 text-black rounded-lg cursor-pointer border-2 border-dashed border-gray-600"
-                          >
-                            {uploadFile ? uploadFile.name : "Choose a file"}
-                          </label>
-                          {preview && (
-                            <div className="mt-4 max-w-sm">
-                              <img
-                                src={preview}
-                                alt="Preview"
-                                className="w-full h-auto rounded-lg"
-                              />
-                            </div>
-                          )}
-                          <div className="flex gap-4 mt-4">
-                            <button
-                              onClick={() =>
-                                handlePrescriptionUpload(order._id)
-                              }
-                              disabled={uploadLoading || !uploadFile}
-                              className={`py-2 px-4 rounded-lg transition-colors hover:bg-green-600 active:bg-green-400 ${
-                                uploadLoading || !uploadFile
-                                  ? "bg-gray-500 cursor-not-allowed"
-                                  : "bg-green-500"
-                              }`}
-                            >
-                              {uploadLoading ? "Uploading..." : "Upload"}
-                            </button>
-                            <button
-                              onClick={() => {
-                                setSelectedOrderId(null);
-                                setUploadFile(null);
-                                setPreview(null);
-                              }}
-                              className="bg-red-500 text-black py-2 px-4 rounded-lg"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => setSelectedOrderId(order._id)}
-                          className="bg-green-500 text-black py-2 px-4 rounded-lg"
-                        >
-                          Upload Prescription
-                        </button>
-                      )}
-                    </>
-                  )}
-                {prescriptionUploads[order._id] && (
-                  <div className="mt-4 text-green-500 font-semibold">
-                    <span>Prescription submitted</span>
-                    {prescriptionUploads[order._id].verificationStatus ===
-                      "pending" && (
-                      <span className="text-yellow-500 italic ml-2">
-                        (Pending verification)
-                      </span>
-                    )}
-                  </div>
-                )}
+    {/* Upload Prescription Section */}
+    {(order.prescriptionStatus === "pending" ||
+      order.orderStatus === "awaiting_prescription") &&
+      !prescriptionUploads[order._id] && (
+        <div className="flex flex-col gap-4">
+          {selectedOrderId === order._id ? (
+            <div className="flex flex-col gap-4">
+              <input
+                type="file"
+                onChange={handleFileChange}
+                accept=".jpg,.jpeg,.png,.pdf"
+                id={`prescription-${order._id}`}
+                className="hidden"
+              />
+              <label
+                htmlFor={`prescription-${order._id}`}
+                className="py-2 px-4 bg-gray-200 text-gray-700 rounded-lg cursor-pointer border-2 border-dashed border-gray-400 hover:bg-gray-300"
+              >
+                {uploadFile ? uploadFile.name : "Choose a file"}
+              </label>
+              {preview && (
+                <div className="mt-2">
+                  <img
+                    src={preview}
+                    alt="Preview"
+                    className="w-full h-auto rounded-lg border"
+                  />
+                </div>
+              )}
+              <div className="flex gap-4">
+                <button
+                  onClick={() => handlePrescriptionUpload(order._id)}
+                  disabled={uploadLoading || !uploadFile}
+                  className={`py-2 px-4 rounded-lg text-white transition-colors ${
+                    uploadLoading || !uploadFile
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-green-500 hover:bg-green-600"
+                  }`}
+                >
+                  {uploadLoading ? "Uploading..." : "Upload"}
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedOrderId(null);
+                    setUploadFile(null);
+                    setPreview(null);
+                  }}
+                  className="py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                >
+                  Cancel
+                </button>
               </div>
             </div>
+          ) : (
+            <button
+              onClick={() => setSelectedOrderId(order._id)}
+              className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-transform hover:scale-105 active:scale-95"
+            >
+              Upload Prescription
+            </button>
+          )}
+        </div>
+      )}
+
+    {/* Prescription Submitted Message */}
+    {prescriptionUploads[order._id] && (
+      <div className="mt-4 text-green-600 font-semibold flex justify-center text-center">
+        <span>Prescription submitted</span>
+        {prescriptionUploads[order._id].verificationStatus === "pending" && (
+          <span className="text-yellow-500 italic ml-2">
+            (Pending verification)
+          </span>
+        )}
+      </div>
+    )}
+  </div>
+</div>
+
           </div>
         ))
       )}
