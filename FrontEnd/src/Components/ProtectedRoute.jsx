@@ -1,7 +1,8 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
+import PropTypes from "prop-types";
+import { Navigate, Outlet } from "react-router-dom";
 
-const ProtectedRoute = ({ children, allowedRoles }) => {
+const ProtectedRoute = ({ allowedRoles }) => {
   const isLoggedIn = Boolean(localStorage.getItem("token"));
   const role = localStorage.getItem("role");
 
@@ -11,10 +12,14 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   if (!allowedRoles.includes(role)) {
     // Redirect based on role
-    return <Navigate to={role === "admin" ? "/admin/home" : "/user/home"} />;
+    return <Navigate to={role === "admin" ? "/admin-home" : "/home"} />;
   }
 
-  return children; // Render the protected component
+  return <Outlet />; // Render nested routes
+};
+
+ProtectedRoute.propTypes = {
+  allowedRoles: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 export default ProtectedRoute;

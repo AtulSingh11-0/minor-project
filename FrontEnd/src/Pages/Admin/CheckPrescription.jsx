@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../../Apis/Api";
 import { toast } from "react-toastify";
 
-const PrescriptionApproval = () => {
+const CheckPrescription = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
@@ -72,100 +72,92 @@ const PrescriptionApproval = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (!order) return <div>Order not found</div>;
+  if (loading) return (
+    <div className="flex justify-center items-center h-screen text-blue-600 text-xl">
+      Loading...
+    </div>
+  );
+
+  if (!order) return (
+    <div className="flex justify-center items-center h-screen text-red-600 text-xl">
+      Order not found
+    </div>
+  );
 
   return (
-    <div style={styles.container}>
-      <h1>Prescription Approval for Order #{orderId.slice(-8)}</h1>
-      <div style={styles.orderDetails}>
-        <h2>Ordered Medicines</h2>
-        {order.items.map((item) => (
-          <div key={item._id} style={styles.item}>
-            <span>{item.product.name}</span>
-            <span>Quantity: {item.quantity}</span>
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+        <div className="bg-blue-800 text-white p-6">
+          <h1 className="text-2xl font-bold">
+            Prescription Approval for Order #{orderId.slice(-8)}
+          </h1>
+        </div>
+        
+        <div className="p-6">
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-blue-900 mb-4">
+              Ordered Medicines
+            </h2>
+            <div className="space-y-2">
+              {order.items.map((item) => (
+                <div 
+                  key={item._id} 
+                  className="flex justify-between p-3 bg-blue-50 rounded-md"
+                >
+                  <span className="font-medium text-gray-800">
+                    {item.product.name}
+                  </span>
+                  <span className="text-gray-600">
+                    Quantity: {item.quantity}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
-        ))}
-      </div>
-      <div style={styles.prescriptionContainer}>
-        <h2>Prescription</h2>
-        {order.prescription ? (
-          <img
-            src={order.prescription.imageUrl}
-            alt="Prescription"
-            style={styles.prescriptionImage}
-          />
-        ) : (
-          <p>No prescription uploaded yet</p>
-        )}
-      </div>
-      <div style={styles.actions}>
-        <button
-          onClick={handleApprove}
-          disabled={updating}
-          style={styles.approveButton}
-        >
-          Approve Prescription
-        </button>
-        <button
-          onClick={handleReject}
-          disabled={updating}
-          style={styles.rejectButton}
-        >
-          Reject Prescription
-        </button>
+
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-blue-900 mb-4">
+              Prescription
+            </h2>
+            {order.prescription ? (
+              <div className="bg-gray-100 p-4 rounded-lg">
+                <img
+                  src={order.prescription.imageUrl}
+                  alt="Prescription"
+                  className="w-full max-h-[500px] object-contain rounded-md shadow-md"
+                />
+              </div>
+            ) : (
+              <p className="text-gray-500">No prescription uploaded yet</p>
+            )}
+          </div>
+
+          <div className="flex space-x-4">
+            <button
+              onClick={handleApprove}
+              disabled={updating}
+              className="flex-1 bg-green-500 text-white py-3 rounded-md 
+                hover:bg-green-600 transition-colors
+                disabled:opacity-50 disabled:cursor-not-allowed
+                focus:outline-none focus:ring-2 focus:ring-green-400"
+            >
+              Approve Prescription
+            </button>
+            <button
+              onClick={handleReject}
+              disabled={updating}
+              className="flex-1 bg-red-500 text-white py-3 rounded-md 
+                hover:bg-red-600 transition-colors
+                disabled:opacity-50 disabled:cursor-not-allowed
+                focus:outline-none focus:ring-2 focus:ring-red-400"
+            >
+              Reject Prescription
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
-const styles = {
-  container: {
-    maxWidth: "800px",
-    margin: "40px auto",
-    padding: "20px",
-    backgroundColor: "#333",
-    borderRadius: "8px",
-    color: "white",
-  },
-  orderDetails: {
-    marginBottom: "20px",
-  },
-  item: {
-    display: "flex",
-    justifyContent: "space-between",
-    padding: "8px 0",
-    borderBottom: "1px solid #555",
-  },
-  prescriptionContainer: {
-    marginBottom: "20px",
-  },
-  prescriptionImage: {
-    maxWidth: "100%",
-    borderRadius: "4px",
-  },
-  actions: {
-    display: "flex",
-    gap: "10px",
-  },
-  approveButton: {
-    padding: "12px",
-    backgroundColor: "#4CAF50",
-    color: "white",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-    fontSize: "16px",
-  },
-  rejectButton: {
-    padding: "12px",
-    backgroundColor: "#dc143c",
-    color: "white",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-    fontSize: "16px",
-  },
-};
-
-export default PrescriptionApproval;
+export default CheckPrescription;

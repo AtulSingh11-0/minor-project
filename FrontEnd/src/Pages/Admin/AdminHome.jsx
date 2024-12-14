@@ -1,109 +1,82 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
 
 const AdminHome = () => {
-  const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState('dashboard');
 
-  const handleNavigation = (path) => {
-    navigate(path);
+  useEffect(() => {
+    // Check if the page has already reloaded
+    if (!sessionStorage.getItem("hasReloaded")) {
+      sessionStorage.setItem("hasReloaded", "true");
+      window.location.reload(); // Reload the page
+    }
+  }, []);
+
+  const handleNavigation = (page) => {
+    setCurrentPage(page);
+  };
+
+  const renderContent = () => {
+    switch(currentPage) {
+      case 'products':
+        return <div className="text-center text-2xl text-blue-800 p-8">Products Management Page</div>;
+      case 'orders':
+        return <div className="text-center text-2xl text-blue-800 p-8">Orders Management Page</div>;
+      case 'users':
+        return <div className="text-center text-2xl text-blue-800 p-8">Users Management Page</div>;
+      case 'prescriptions':
+        return <div className="text-center text-2xl text-blue-800 p-8">Prescriptions Review Page</div>;
+      default:
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+            {[
+              { title: 'Total Orders', value: '150' },
+              { title: 'Active Users', value: '1,234' },
+              { title: 'Total Products', value: '567' },
+              { title: 'Revenue', value: '₹45,678' }
+            ].map((stat, index) => (
+              <div 
+                key={index} 
+                className="bg-white rounded-xl shadow-md p-6 text-center transform transition duration-300 hover:scale-105 border border-blue-200"
+              >
+                <h3 className="text-blue-600 text-lg font-semibold mb-2">{stat.title}</h3>
+                <p className="text-3xl font-bold text-blue-900">{stat.value}</p>
+              </div>
+            ))}
+          </div>
+        );
+    }
   };
 
   return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>Admin Dashboard</h1>
+    <div className="min-h-screen p-4 sm:p-8 mt-36">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-3xl sm:text-4xl text-center text-blue-900 font-bold mb-8">
+          Admin Dashboard
+        </h1>
+        
+        {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {[
+            { label: 'Manage Products', page: 'products' },
+            { label: 'View Orders', page: 'orders' },
+            { label: 'Manage Users', page: 'users' },
+            { label: 'Review Prescriptions', page: 'prescriptions' }
+          ].map((action, index) => (
+            <button
+              key={index}
+              onClick={() => handleNavigation(action.page)}
+              className="bg-blue-600 text-white px-4 py-3 rounded-lg text-sm sm:text-base 
+                         hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 
+                         transition duration-300 ease-in-out transform hover:scale-105"
+            >
+              {action.label}
+            </button>
+          ))}
+        </div> */}
 
-      <div style={styles.statsContainer}>
-        <div style={styles.statCard}>
-          <h3>Total Orders</h3>
-          <p>150</p>
-        </div>
-        <div style={styles.statCard}>
-          <h3>Active Users</h3>
-          <p>1,234</p>
-        </div>
-        <div style={styles.statCard}>
-          <h3>Total Products</h3>
-          <p>567</p>
-        </div>
-        <div style={styles.statCard}>
-          <h3>Revenue</h3>
-          <p>₹45,678</p>
-        </div>
-      </div>
-
-      <div style={styles.actionsContainer}>
-        <button
-          style={styles.actionButton}
-          onClick={() => handleNavigation("/admin/products")}
-        >
-          Manage Products
-        </button>
-        <button
-          style={styles.actionButton}
-          onClick={() => handleNavigation("/admin/orders")}
-        >
-          View Orders
-        </button>
-        <button
-          style={styles.actionButton}
-          onClick={() => handleNavigation("/admin/users")}
-        >
-          Manage Users
-        </button>
-        <button
-          style={styles.actionButton}
-          onClick={() => handleNavigation("/admin/check-prescriptions")} // Changed from "/admin/prescriptions"
-        >
-          Review Prescriptions
-        </button>
+        {renderContent()}
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    padding: "2rem",
-    color: "white",
-    maxWidth: "1200px",
-    margin: "0 auto",
-  },
-  title: {
-    fontSize: "2.5rem",
-    textAlign: "center",
-    marginBottom: "2rem",
-  },
-  statsContainer: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-    gap: "1rem",
-    marginBottom: "2rem",
-  },
-  statCard: {
-    background: "#333",
-    padding: "1.5rem",
-    borderRadius: "8px",
-    textAlign: "center",
-    boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-  },
-  actionsContainer: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-    gap: "1rem",
-  },
-  actionButton: {
-    padding: "1rem",
-    fontSize: "1.1rem",
-    backgroundColor: "#444",
-    color: "white",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    transition: "background-color 0.2s",
-    "&:hover": {
-      backgroundColor: "#555",
-    },
-  },
 };
 
 export default AdminHome;

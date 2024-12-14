@@ -155,7 +155,7 @@ const Checkout = () => {
       const token = localStorage.getItem("jwt");
       const response = await api.post("/orders/create", orderPayload, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: "Bearer ${token}",
           "Content-Type": "application/json",
         },
       });
@@ -203,168 +203,182 @@ const Checkout = () => {
   const { subtotal, shipping, tax, total } = calculateTotals();
 
   return (
-    <div style={{ color: "white" }} className="checkout-container">
-      <form onSubmit={handleSubmit} className="checkout-form">
-        <h2>Checkout</h2>
-
-        <section className="shipping-section">
-          <h3>Shipping Address</h3>
-          <div className="form-group">
-            <input
-              type="text"
-              name="shippingAddress.street"
-              placeholder="Street Address"
-              value={formData.shippingAddress.street}
-              onChange={handleChange}
-            />
-            {errors.street && <span className="error">{errors.street}</span>}
-          </div>
-          <div className="form-row">
-            <div className="form-group">
-              <input
-                type="text"
-                name="shippingAddress.city"
-                placeholder="City"
-                value={formData.shippingAddress.city}
-                onChange={handleChange}
-              />
-              {errors.city && <span className="error">{errors.city}</span>}
-            </div>
-            <div className="form-group">
-              <input
-                type="text"
-                name="shippingAddress.state"
-                placeholder="State"
-                value={formData.shippingAddress.state}
-                onChange={handleChange}
-              />
-              {errors.state && <span className="error">{errors.state}</span>}
-            </div>
-            <div className="form-group">
-              <input
-                type="text"
-                name="shippingAddress.zipCode"
-                placeholder="ZIP Code"
-                value={formData.shippingAddress.zipCode}
-                onChange={handleChange}
-              />
-              {errors.zipCode && (
-                <span className="error">{errors.zipCode}</span>
-              )}
-            </div>
-          </div>
-        </section>
-
-        <section className="payment-section">
-          <h3>Payment Method</h3>
-          <div className="payment-options">
-            <label>
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="cod"
-                checked={formData.paymentMethod === "cod"}
-                onChange={handleChange}
-              />
-              Cash on Delivery
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="card"
-                checked={formData.paymentMethod === "card"}
-                onChange={handleChange}
-              />
-              Credit/Debit Card
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="wallet"
-                checked={formData.paymentMethod === "wallet"}
-                onChange={handleChange}
-              />
-              Digital Wallet
-            </label>
-          </div>
-
-          {formData.paymentMethod === "card" && (
-            <div className="card-details">
-              <div className="form-group">
-                <input
-                  type="text"
-                  name="cardDetails.cardNumber"
-                  placeholder="Card Number"
-                  value={formData.cardDetails.cardNumber}
-                  onChange={handleChange}
-                  maxLength="16"
-                />
-                {errors.cardNumber && <span className="error">{errors.cardNumber}</span>}
-              </div>
-              <div className="form-row">
+    <div className="flex mt-20 items-center justify-center p-4">
+      <form onSubmit={handleSubmit} className="checkout-form w-full max-w-7xl">
+        <div className="w-full mx-auto shadow-form rounded-form p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Left Column - Form Sections */}
+          <div className="md:col-span-2 space-y-6">
+            {/* Shipping Address Section */}
+            <section className="bg-background p-4 rounded-lg">
+              <h3 className="text-xl font-semibold text-primary border-b-2 border-secondary pb-2 mb-4">
+                Shipping Address
+              </h3>
+              <div className="space-y-4">
                 <div className="form-group">
                   <input
                     type="text"
-                    name="cardDetails.expiryMonth"
-                    placeholder="MM"
-                    value={formData.cardDetails.expiryMonth}
+                    name="shippingAddress.street"
+                    placeholder="Street Address"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary"
+                    value={formData.shippingAddress.street}
                     onChange={handleChange}
-                    maxLength="2"
                   />
-                  {errors.expiryMonth && <span className="error">{errors.expiryMonth}</span>}
+                  {errors.street && <span className="text-error text-sm mt-1">{errors.street}</span>}
                 </div>
-                <div className="form-group">
-                  <input
-                    type="text"
-                    name="cardDetails.expiryYear"
-                    placeholder="YY"
-                    value={formData.cardDetails.expiryYear}
-                    onChange={handleChange}
-                    maxLength="2"
-                  />
-                  {errors.expiryYear && <span className="error">{errors.expiryYear}</span>}
-                </div>
-                <div className="form-group">
-                  <input
-                    type="text"
-                    name="cardDetails.cvv"
-                    placeholder="CVV"
-                    value={formData.cardDetails.cvv}
-                    onChange={handleChange}
-                    maxLength="4"
-                  />
-                  {errors.cvv && <span className="error">{errors.cvv}</span>}
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <input
+                      type="text"
+                      name="shippingAddress.city"
+                      placeholder="City"
+                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary"
+                      value={formData.shippingAddress.city}
+                      onChange={handleChange}
+                    />
+                    {errors.city && <span className="text-error text-sm mt-1">{errors.city}</span>}
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      name="shippingAddress.state"
+                      placeholder="State"
+                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary"
+                      value={formData.shippingAddress.state}
+                      onChange={handleChange}
+                    />
+                    {errors.state && <span className="text-error text-sm mt-1">{errors.state}</span>}
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      name="shippingAddress.zipCode"
+                      placeholder="ZIP Code"
+                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary"
+                      value={formData.shippingAddress.zipCode}
+                      onChange={handleChange}
+                    />
+                    {errors.zipCode && <span className="text-error text-sm mt-1">{errors.zipCode}</span>}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </section>
+            </section>
+            {/* ... (previous shipping address section remains the same) */}
 
-        <section className="order-summary">
-          <h3>Order Summary</h3>
-          <div className="summary-row">
-            <span>Subtotal:</span>
-            <span>₹{subtotal.toFixed(2)}</span>
-          </div>
-          <div className="summary-row">
-            <span>Shipping:</span>
-            <span>₹{shipping.toFixed(2)}</span>
-          </div>
-          <div className="summary-row">
-            <span>Tax (18%):</span>
-            <span>₹{tax.toFixed(2)}</span>
-          </div>
-          <div className="summary-row total">
-            <span>Total:</span>
-            <span>₹{total.toFixed(2)}</span>
-          </div>
-        </section>
+            {/* Payment Method Section */}
+            <section className="bg-background p-4 rounded-lg">
+              <h3 className="text-xl font-semibold text-primary border-b-2 border-secondary pb-2 mb-4">
+                Payment Method
+              </h3>
+              <div className="flex space-x-4 mb-4">
+                {['cod', 'card', 'wallet'].map((method) => (
+                  <label key={method} className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value={method}
+                      checked={formData.paymentMethod === method}
+                      onChange={handleChange}
+                      className="form-radio text-secondary focus:ring-secondary"
+                    />
+                    <span className="capitalize">{method === 'cod' ? 'Cash on Delivery' : method}</span>
+                  </label>
+                ))}
+              </div>
 
-        <button type="submit" className="place-order-btn" disabled={submitting}>
-          {submitting ? "Processing..." : `Pay ${formData.paymentMethod === "cod" ? "(Cash on Delivery)" : ""} ₹${total.toFixed(2)}`}
-        </button>
+              {/* Fixed Height Container for Card Details */}
+              <div className={`transition-all duration-300 ease-in-out overflow-hidden 
+                ${formData.paymentMethod === "card" 
+                  ? "max-h-96 opacity-100 visible" 
+                  : "max-h-0 opacity-0 invisible"}`}>
+                <div className="p-4 rounded-lg shadow-sm">
+                  <div className="space-y-4">
+                    <input
+                      type="text"
+                      name="cardDetails.cardNumber"
+                      placeholder="Card Number"
+                      maxLength="16"
+                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary"
+                      value={formData.cardDetails.cardNumber}
+                      onChange={handleChange}
+                    />
+                    {errors.cardNumber && <span className="text-error text-sm">{errors.cardNumber}</span>}
+
+                    <div className="grid grid-cols-3 gap-4">
+                      <input
+                        type="text"
+                        name="cardDetails.expiryMonth"
+                        placeholder="MM"
+                        maxLength="2"
+                        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary"
+                        value={formData.cardDetails.expiryMonth}
+                        onChange={handleChange}
+                      />
+                      <input
+                        type="text"
+                        name="cardDetails.expiryYear"
+                        placeholder="YY"
+                        maxLength="2"
+                        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary"
+                        value={formData.cardDetails.expiryYear}
+                        onChange={handleChange}
+                      />
+                      <input
+                        type="text"
+                        name="cardDetails.cvv"
+                        placeholder="CVV"
+                        maxLength="4"
+                        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary"
+                        value={formData.cardDetails.cvv}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    {(errors.expiryMonth || errors.expiryYear || errors.cvv) && (
+                      <div className="text-error text-sm">
+                        {errors.expiryMonth || errors.expiryYear || errors.cvv}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* Right Column - Order Summary (remains the same) */}
+          <div className="md:col-span-1 bg-white p-6 py-12 rounded-lg mx-5 shadow-xl sticky top-20 max-w-lg h-fit">
+            {/* ... (previous order summary section remains the same) */}
+            <h3 className="text-xl font-semibold text-primary border-b-2 border-secondary pb-2 mb-4">
+              Order Summary
+            </h3>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span>Subtotal:</span>
+                <span>₹{subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Shipping:</span>
+                <span>₹{shipping.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Tax (18%):</span>
+                <span>₹{tax.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between font-bold text-lg border-t pt-2">
+                <span>Total:</span>
+                <span>₹{total.toFixed(2)}</span>
+              </div>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="px-8 py-3 mt-8 bg-blue-600 text-white text-md font-semibold rounded-lg shadow-md w-full hover:bg-blue-500 transition duration-3000"
+              >
+                {submitting
+                  ? "Processing..."
+                  : `Pay ${formData.paymentMethod === "cod" ? "(Cash on Delivery)" : ""} ₹${total.toFixed(2)}`}
+              </button>
+          </div>
+          </div>
+        </div>
       </form>
     </div>
   );
