@@ -7,7 +7,7 @@ export const useAuth = () => {
 
   // Check auth status on mount and token changes
   const checkAuthStatus = () => {
-    const token = localStorage.getItem("jwt");
+    const token = localStorage.getItem("token");
     setIsAuthenticated(!!token);
   };
 
@@ -21,15 +21,21 @@ export const useAuth = () => {
       console.error("No token provided to login");
       return;
     }
-    localStorage.setItem("jwt", token);
+    localStorage.setItem("token", token);
     setIsAuthenticated(true);
   };
 
-  // Logout method
   const logout = () => {
-    localStorage.removeItem("jwt");
+    console.log(
+      localStorage.getItem("token"),
+      localStorage.getItem("userRole")
+    );
+    localStorage.removeItem("token");
+    localStorage.removeItem("userRole");
     setIsAuthenticated(false);
+
     navigate("/login");
+    console.log("gone");
   };
 
   return { isAuthenticated, login, logout };
