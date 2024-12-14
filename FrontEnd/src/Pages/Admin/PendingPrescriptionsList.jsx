@@ -15,6 +15,8 @@ const PendingPrescriptionsList = () => {
   const fetchPendingPrescriptions = async () => {
     try {
       const response = await api.get("/prescriptions/pending");
+      console.log(response);
+
       setPrescriptions(response.data.data.prescriptions);
     } catch (err) {
       toast.error("Failed to fetch pending prescriptions");
@@ -47,11 +49,15 @@ const PendingPrescriptionsList = () => {
     }
   };
 
+<<<<<<< HEAD
   if (loading) return (
     <div className="flex justify-center items-center h-screen text-blue-600 text-xl">
       Loading...
     </div>
   );
+=======
+  if (loading) return <div style={styles.loading}>Loading...</div>;
+>>>>>>> 642309f27f01b6ab603c8c3e58b011781f376ad0
 
   return (
     <div className="container mx-auto px-4 py-8 bg-white min-h-screen">
@@ -65,6 +71,7 @@ const PendingPrescriptionsList = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {prescriptions.map((prescription) => (
+<<<<<<< HEAD
             <div 
               key={prescription._id} 
               className="bg-blue-50 rounded-lg shadow-md overflow-hidden transform transition-all hover:scale-105 hover:shadow-xl"
@@ -119,6 +126,44 @@ const PendingPrescriptionsList = () => {
                       Reject
                     </button>
                   </div>
+=======
+            <div key={prescription._id} style={styles.card}>
+              <h3>Order #{prescription.order._id.slice(-8)}</h3>
+              <p>Customer: {prescription.user.name}</p>
+              <p>
+                Date: {new Date(prescription.createdAt).toLocaleDateString()}
+              </p>
+              <img 
+                src={prescription.imageUrl} 
+                alt="Prescription"
+                style={styles.prescriptionImage}
+              />
+              <div style={styles.verificationForm}>
+                <textarea
+                  placeholder="Enter notes (required for rejection)"
+                  value={notes[prescription._id] || ""}
+                  onChange={(e) => setNotes(prev => ({
+                    ...prev,
+                    [prescription._id]: e.target.value
+                  }))}
+                  style={styles.notesInput}
+                />
+                <div style={styles.buttonGroup}>
+                  <button
+                    onClick={() => handleVerification(prescription._id, "approved")}
+                    disabled={updating[prescription._id]}
+                    style={{...styles.button, ...styles.approveButton}}
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => handleVerification(prescription._id, "rejected")}
+                    disabled={updating[prescription._id]}
+                    style={{...styles.button, ...styles.rejectButton}}
+                  >
+                    Reject
+                  </button>
+>>>>>>> 642309f27f01b6ab603c8c3e58b011781f376ad0
                 </div>
               </div>
             </div>
@@ -129,4 +174,84 @@ const PendingPrescriptionsList = () => {
   );
 };
 
+<<<<<<< HEAD
 export default PendingPrescriptionsList;
+=======
+const styles = {
+  container: {
+    padding: "20px",
+    maxWidth: "1200px",
+    margin: "0 auto",
+    color: "white",
+  },
+  title: {
+    textAlign: "center",
+    marginBottom: "30px",
+  },
+  loading: {
+    textAlign: "center",
+    color: "white",
+    padding: "20px",
+  },
+  noData: {
+    textAlign: "center",
+    color: "#666",
+  },
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+    gap: "20px",
+  },
+  card: {
+    backgroundColor: "#333",
+    padding: "20px",
+    borderRadius: "8px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+  },
+  button: {
+    padding: "10px",
+    backgroundColor: "#4CAF50",
+    color: "white",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
+  },
+  prescriptionImage: {
+    width: "100%",
+    maxHeight: "300px",
+    objectFit: "contain",
+    marginTop: "10px",
+    borderRadius: "4px",
+  },
+  verificationForm: {
+    marginTop: "15px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+  },
+  notesInput: {
+    width: "100%",
+    minHeight: "80px",
+    padding: "8px",
+    borderRadius: "4px",
+    backgroundColor: "#444",
+    border: "1px solid #555",
+    color: "white",
+    resize: "vertical",
+  },
+  buttonGroup: {
+    display: "flex",
+    gap: "10px",
+  },
+  approveButton: {
+    backgroundColor: "#4CAF50",
+  },
+  rejectButton: {
+    backgroundColor: "#dc143c",
+  },
+};
+
+export default PendingPrescriptionsList;
+>>>>>>> 642309f27f01b6ab603c8c3e58b011781f376ad0

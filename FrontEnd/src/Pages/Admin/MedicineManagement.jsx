@@ -10,6 +10,7 @@ const MedicineManagement = () => {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
+<<<<<<< HEAD
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -37,6 +38,8 @@ const MedicineManagement = () => {
   const [isFilterLoading, setIsFilterLoading] = useState(false);
   const [error, setError] = useState(null);
 
+=======
+>>>>>>> 642309f27f01b6ab603c8c3e58b011781f376ad0
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -63,6 +66,7 @@ const MedicineManagement = () => {
     setError(null);
 
     try {
+<<<<<<< HEAD
       const response = await api.get("/products", {
         params: {
           page: currentPage,
@@ -80,6 +84,14 @@ const MedicineManagement = () => {
       setTotalMedicines(pagination.total);
       setTotalPages(pagination.pages);
       
+=======
+      const response = await api.get("/products");
+      // Filter out medicines with awaiting_prescription status
+      const filteredMedicines = response.data.data.products.filter(
+        medicine => medicine.orderStatus !== "awaiting_prescription"
+      );
+      setMedicines(filteredMedicines);
+>>>>>>> 642309f27f01b6ab603c8c3e58b011781f376ad0
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to fetch medicines");
       setError(err.response?.data?.message || "Failed to fetch medicines");
@@ -189,15 +201,26 @@ const MedicineManagement = () => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
+<<<<<<< HEAD
       [name]:
         type === "checkbox" ? checked : name === "imageUrls" ? value : value,
+=======
+      [name]: type === "checkbox" ? checked : 
+              name === "imageUrls" ? value :
+              value
+>>>>>>> 642309f27f01b6ab603c8c3e58b011781f376ad0
     }));
   };
 
   const handleArrayInput = (e, field) => {
+<<<<<<< HEAD
     const value = e.target.value
       ? e.target.value.split(",").map((item) => item.trim())
       : [];
+=======
+    // Handle empty input case
+    const value = e.target.value ? e.target.value.split(",").map(item => item.trim()) : [];
+>>>>>>> 642309f27f01b6ab603c8c3e58b011781f376ad0
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -211,20 +234,28 @@ const MedicineManagement = () => {
       ...formData,
       price: Number(formData.price),
       stockQuantity: Number(formData.stockQuantity),
+<<<<<<< HEAD
       expiryDate: new Date(formData.expiryDate).toISOString(),
       imageUrls: formData.imageUrls
         .toString()
         .split(",")
         .map((url) => url.trim()),
+=======
+      // Convert date string to ISO format
+      expiryDate: new Date(formData.expiryDate).toISOString(),
+      imageUrls: formData.imageUrls.toString().split(',').map(url => url.trim())
+>>>>>>> 642309f27f01b6ab603c8c3e58b011781f376ad0
     };
 
     try {
       if (editingId) {
         await api.put(`/products/${editingId}`, dataToSend);
         toast.success("Medicine updated successfully");
+        alert("Medicine updated successfully");
       } else {
         await api.post("/products", dataToSend);
         toast.success("Medicine created successfully");
+        alert("Medicine created successfully");
       }
 
       resetForm();
@@ -243,7 +274,12 @@ const MedicineManagement = () => {
     setEditingId(medicine._id);
     setFormData({
       ...medicine,
+<<<<<<< HEAD
       expiryDate: new Date(medicine.expiryDate).toISOString().split("T")[0],
+=======
+      // Format the date to YYYY-MM-DD for the input
+      expiryDate: new Date(medicine.expiryDate).toISOString().split('T')[0],
+>>>>>>> 642309f27f01b6ab603c8c3e58b011781f376ad0
       activeIngredients: medicine.activeIngredients || [],
       sideEffects: medicine.sideEffects || [],
       contraindications: medicine.contraindications || [],
@@ -275,7 +311,11 @@ const MedicineManagement = () => {
       manufacturer: "",
       requiresPrescription: false,
       imageUrls: [],
+<<<<<<< HEAD
       activeIngredients: [],
+=======
+      activeIngredients: [], // Initialize empty arrays
+>>>>>>> 642309f27f01b6ab603c8c3e58b011781f376ad0
       sideEffects: [],
       contraindications: [],
       dosageForm: "tablet",
@@ -435,12 +475,133 @@ const MedicineManagement = () => {
 
       {/* Existing form code remains the same */}
       {isCreating && (
+<<<<<<< HEAD
         <div className="bg-white shadow-md rounded-lg p-6 mb-8">
           <h2 className="text-2xl font-semibold text-blue-900 mb-4">
             {editingId ? "Edit Medicine" : "Create New Medicine"}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid md:grid-cols-2 gap-4">
+=======
+        <div style={styles.formContainer}>
+          <h2>{editingId ? "Edit Medicine" : "Create New Medicine"}</h2>
+          <form onSubmit={handleSubmit} style={styles.form}>
+            <input
+              type="text"
+              name="name"
+              placeholder="Medicine Name"
+              value={formData.name}
+              onChange={handleInputChange}
+              style={styles.input}
+              required
+            />
+            <textarea
+              name="description"
+              placeholder="Description"
+              value={formData.description}
+              onChange={handleInputChange}
+              style={styles.textarea}
+              required
+            />
+            <input
+              type="number"
+              name="price"
+              placeholder="Price"
+              value={formData.price}
+              onChange={handleInputChange}
+              style={styles.input}
+              required
+            />
+            <input
+              type="number"
+              name="stockQuantity"
+              placeholder="Stock Quantity"
+              value={formData.stockQuantity}
+              onChange={handleInputChange}
+              style={styles.input}
+              required
+            />
+            <input
+              type="text"
+              name="category"
+              placeholder="Category"
+              value={formData.category}
+              onChange={handleInputChange}
+              style={styles.input}
+              required
+            />
+            <input
+              type="text"
+              name="manufacturer"
+              placeholder="Manufacturer"
+              value={formData.manufacturer}
+              onChange={handleInputChange}
+              style={styles.input}
+              required
+            />
+            <select
+              name="dosageForm"
+              value={formData.dosageForm}
+              onChange={handleInputChange}
+              style={styles.input}
+              required
+            >
+              <option value="tablet">Tablet</option>
+              <option value="capsule">Capsule</option>
+              <option value="liquid">Liquid</option>
+              <option value="cream">Cream</option>
+              <option value="injection">Injection</option>
+              <option value="other">Other</option>
+            </select>
+
+            <input
+              type="text"
+              name="activeIngredients"
+              placeholder="Active Ingredients (comma separated)"
+              value={formData.activeIngredients?.join(", ") || ""} // Add null check
+              onChange={(e) => handleArrayInput(e, "activeIngredients")}
+              style={styles.input}
+              required
+            />
+
+            <input
+              type="text"
+              name="sideEffects"
+              placeholder="Side Effects (comma separated)"
+              value={formData.sideEffects?.join(", ") || ""} // Add null check
+              onChange={(e) => handleArrayInput(e, "sideEffects")}
+              style={styles.input}
+            />
+
+            <input
+              type="text"
+              name="contraindications"
+              placeholder="Contraindications (comma separated)"
+              value={formData.contraindications?.join(", ") || ""} // Add null check
+              onChange={(e) => handleArrayInput(e, "contraindications")}
+              style={styles.input}
+            />
+
+            <input
+              type="date"
+              name="expiryDate"
+              value={formData.expiryDate}
+              onChange={handleInputChange}
+              style={styles.input}
+              required
+            />
+
+            <input
+              type="text"
+              name="batchNumber"
+              placeholder="Batch Number"
+              value={formData.batchNumber}
+              onChange={handleInputChange}
+              style={styles.input}
+              required
+            />
+            <div style={styles.checkboxContainer}>
+>>>>>>> 642309f27f01b6ab603c8c3e58b011781f376ad0
               <input
                 type="text"
                 name="name"
@@ -573,11 +734,24 @@ const MedicineManagement = () => {
                 className="w-full p-2 border border-blue-200 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none col-span-full"
               />
             </div>
+<<<<<<< HEAD
             <div className="flex space-x-4 mt-6">
               <button 
                 type="submit" 
                 className="flex-1 bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-colors"
               >
+=======
+            <input
+              type="text"
+              name="imageUrls"
+              placeholder="Image URLs (comma separated)"
+              value={formData.imageUrls}
+              onChange={handleInputChange}
+              style={styles.input}
+            />
+            <div style={styles.buttonGroup}>
+              <button type="submit" style={styles.submitButton}>
+>>>>>>> 642309f27f01b6ab603c8c3e58b011781f376ad0
                 {editingId ? "Update" : "Create"}
               </button>
               <button
