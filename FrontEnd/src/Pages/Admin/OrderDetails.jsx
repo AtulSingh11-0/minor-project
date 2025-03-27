@@ -15,16 +15,16 @@ const OrderDetails = () => {
     location: "",
     description: "",
   });
+  const [notes, setNotes] = useState("");
 
   const validStatuses = [
-  
-      "pending",
-      "processing",
-      "packed",
-      "shipped",
-      "delivered",
-      "cancelled",
-    ];
+    "pending",
+    "processing",
+    "packed",
+    "shipped",
+    "delivered",
+    "cancelled",
+  ];
 
   useEffect(() => {
     fetchOrderDetails();
@@ -43,12 +43,13 @@ const OrderDetails = () => {
   };
 
   const updateOrderStatus = async () => {
-    if (!window.confirm("Are you sure you want to update the order status?")) return;
+    if (!window.confirm("Are you sure you want to update the order status?"))
+      return;
 
     setUpdating(true);
     try {
       await api.put(`/orders/${orderId}/status`, {
-        status: trackingInfo.status
+        status: trackingInfo.status,
       });
 
       // Update tracking info if provided
@@ -65,14 +66,20 @@ const OrderDetails = () => {
     }
   };
 
-  const verifyPrescription = async (status, notes = "") => {
+  const verifyPrescription = async (status) => {
     if (!window.confirm(`Are you sure you want to ${status} this prescription?`)) return;
+
+    // Check for notes if rejecting
+    if (status === "rejected" && !notes) {
+      toast.error("Please provide rejection notes");
+      return;
+    }
 
     setUpdating(true);
     try {
       await api.put(`/prescriptions/${order.prescription._id}/verify`, {
         status,
-        notes
+        notes: notes || ""
       });
       toast.success("Prescription verification updated");
       fetchOrderDetails();
@@ -89,7 +96,10 @@ const OrderDetails = () => {
   return (
     <div className="order-details">
       <div className="header">
-        <button onClick={() => navigate("/admin/orders")} className="back-button">
+        <button
+          onClick={() => navigate("/admin/orders")}
+          className="back-button"
+        >
           ← Back to Orders
         </button>
         <h1>Order Details #{orderId.slice(-8)}</h1>
@@ -105,7 +115,7 @@ const OrderDetails = () => {
 
         <div className="order-items">
           <h2>Order Items</h2>
-          {order.items.map(item => (
+          {order.items.map((item) => (
             <div key={item._id} className="item">
               <span>{item.product.name}</span>
               <span>×{item.quantity}</span>
@@ -120,14 +130,16 @@ const OrderDetails = () => {
           <div className="form-group">
             <select
               value={trackingInfo.status}
-              onChange={(e) => setTrackingInfo(prev => ({
-                ...prev,
-                status: e.target.value
-              }))}
+              onChange={(e) =>
+                setTrackingInfo((prev) => ({
+                  ...prev,
+                  status: e.target.value,
+                }))
+              }
               disabled={updating}
             >
               <option value="">Select Status</option>
-              {validStatuses.map(status => (
+              {validStatuses.map((status) => (
                 <option key={status} value={status}>
                   {status.replace("_", " ").toUpperCase()}
                 </option>
@@ -138,19 +150,23 @@ const OrderDetails = () => {
               type="text"
               placeholder="Location"
               value={trackingInfo.location}
-              onChange={(e) => setTrackingInfo(prev => ({
-                ...prev,
-                location: e.target.value
-              }))}
+              onChange={(e) =>
+                setTrackingInfo((prev) => ({
+                  ...prev,
+                  location: e.target.value,
+                }))
+              }
             />
 
             <textarea
               placeholder="Description/Notes"
               value={trackingInfo.description}
-              onChange={(e) => setTrackingInfo(prev => ({
-                ...prev,
-                description: e.target.value
-              }))}
+              onChange={(e) =>
+                setTrackingInfo((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
             />
 
             <button
@@ -166,32 +182,37 @@ const OrderDetails = () => {
           <div className="prescription-management">
             <h2>Prescription Management</h2>
             {order.prescription ? (
-              <>
+              <div className="prescription-content">
                 <img
                   src={order.prescription.imageUrl}
                   alt="Prescription"
                   className="prescription-image"
                 />
-                <div className="verification-buttons">
-                  <button
-                    onClick={() => verifyPrescription("approved")}
-                    disabled={updating}
-                    className="approve-button"
-                  >
-                    Approve Prescription
-                  </button>
-                  <button
-                    onClick={() => {
-                      const notes = window.prompt("Enter rejection reason:");
-                      if (notes) verifyPrescription("rejected", notes);
-                    }}
-                    disabled={updating}
-                    className="reject-button"
-                  >
-                    Reject Prescription
-                  </button>
+                <div className="verification-form">
+                  <textarea
+                    placeholder="Enter notes (required for rejection)"
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    className="notes-input"
+                  />
+                  <div className="verification-buttons">
+                    <button
+                      onClick={() => verifyPrescription("approved")}
+                      disabled={updating}
+                      className="approve-button"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => verifyPrescription("rejected")}
+                      disabled={updating}
+                      className="reject-button"
+                    >
+                      Reject
+                    </button>
+                  </div>
                 </div>
-              </>
+              </div>
             ) : (
               <p>No prescription uploaded yet</p>
             )}
